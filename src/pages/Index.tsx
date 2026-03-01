@@ -288,7 +288,7 @@ const Index = () => {
             Welcome back{displayName ? `, ${displayName}` : ''}
           </h1>
           <p className="text-muted-foreground mt-0.5 text-xs">
-            Logged in as <span className="font-semibold text-accent">{ROLE_LABELS[role]}</span> · Here's your overview
+            Logged in as <span className="font-semibold text-accent">{ROLE_LABELS[role]}</span> · Here&apos;s your overview
           </p>
         </div>
 

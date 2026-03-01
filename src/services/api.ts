@@ -70,12 +70,36 @@ export const api = {
     return response.json();
   },
 
+  updateLead: async (id: string, data: any) => {
+    const response = await fetch(`${API_BASE_URL}/api/leads/update.php`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, ...data }),
+    });
+    return response.json();
+  },
+
   // PAN Verification
   verifyPAN: async (panNumber: string) => {
     const response = await fetch(`${API_BASE_URL}/api/pan/verify.php`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id_number: panNumber }),
+    });
+    return response.json();
+  },
+
+  // Permissions
+  getUsers: async () => {
+    const response = await fetch(`${API_BASE_URL}/api/permissions/read.php`);
+    return response.json();
+  },
+
+  updateUserPermissions: async (userId: string, permissions: any) => {
+    const response = await fetch(`${API_BASE_URL}/api/permissions/update.php`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: userId, permissions }),
     });
     return response.json();
   },

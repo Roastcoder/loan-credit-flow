@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Shield, CreditCard, FileText, Check, X, Users, Save } from 'lucide-react';
 import AppLayout from '@/components/AppLayout';
-import { useRole, DEMO_USERS } from '@/contexts/RoleContext';
+import { useRole } from '@/contexts/RoleContext';
 import { ROLE_LABELS, UserRole, Permission } from '@/types';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -14,6 +14,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
+import { api } from '@/services/api';
 
 const permissionKeys: (keyof Permission)[] = ['view', 'edit', 'add', 'delete'];
 const permissionLabels: Record<keyof Permission, string> = { view: 'View', edit: 'Edit', add: 'Add', delete: 'Delete' };
@@ -44,8 +45,36 @@ const buildDefaultFieldPerms = (): ManagerFieldPerms => {
 
 const PermissionsPage = () => {
   const { role, userAccess, setUserAccess, rolePermissions, setRolePermissions } = useRole();
-  const [managerFieldPerms, setManagerFieldPerms] = useState<ManagerFieldPerms>(buildDefaultFieldPerms());
+  const [users, setUsers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [managerFieldPerms, setManagerFieldPerms] = useState<ManagerFieldPerms>({});
   const [selectedManagerForFields, setSelectedManagerForFields] = useState<string>('');
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const data = await api.getUsers();
+      setUsers(data.users || []);
+      // Build field permissions for fetched users
+      const perms: ManagerFieldPerms = {};
+      data.users?.forEach((u: any) => {
+        if (u.role === 'manager' || u.role === 'team_leader' || u.role === 'admin') {
+          perms[u.id] = {};
+          MANAGER_FIELDS.forEach(field => {
+            perms[u.id][field] = { view: true, edit: u.role === 'admin' };
+          });
+        }
+      });
+      setManagerFieldPerms(perms);
+    } catch (error) {
+      console.error('Failed to fetch users:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (role !== 'super_admin' && role !== 'admin') {
     return (
@@ -91,12 +120,17 @@ const PermissionsPage = () => {
     }));
   };
 
-  const handleSaveFieldPerms = (userId: string) => {
-    const user = DEMO_USERS.find(u => u.id === userId);
-    toast({ title: 'Permissions Saved', description: `Field permissions for ${user?.name || 'user'} updated successfully.` });
+  const handleSaveFieldPerms = async (userId: string) => {
+    const user = users.find(u => u.id === userId);
+    try {
+      await api.updateUserPermissions(userId, managerFieldPerms[userId]);
+      toast({ title: 'Permissions Saved', description: `Field permissions for ${user?.name || 'user'} updated successfully.` });
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to save permissions', variant: 'destructive' });
+    }
   };
 
-  const managersForFieldPerms = DEMO_USERS.filter(u => u.role === 'manager' || u.role === 'team_leader' || u.role === 'admin');
+  const managersForFieldPerms = users.filter(u => u.role === 'manager' || u.role === 'team_leader' || u.role === 'admin');
 
   const RolePermCard = ({ r, module }: { r: UserRole; module: 'creditCards' | 'loanDisbursement' }) => (
     <div className="bg-card rounded-xl border border-border shadow-card p-4">
@@ -236,89 +270,97 @@ const PermissionsPage = () => {
           </TabsContent>
 
           <TabsContent value="user-access" className="flex-1 overflow-y-auto">
-            <div className="md:hidden space-y-3">
-              {DEMO_USERS.map(user => {
-                const access = userAccess[user.id] || { creditCards: false, loanDisbursement: false };
-                return (
-                  <div key={user.id} className="bg-card rounded-xl border border-border shadow-card p-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="min-w-0">
-                        <p className="font-semibold text-sm text-card-foreground truncate">{user.name}</p>
-                        <p className="text-xs text-muted-foreground truncate">{user.email}</p>
-                      </div>
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-accent/10 text-accent flex-shrink-0 ml-2">
-                        {ROLE_LABELS[user.role]}
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="flex items-center justify-between bg-muted/50 rounded-lg px-3 py-2.5">
-                        <div className="flex items-center gap-1.5">
-                          <CreditCard className="w-3.5 h-3.5 text-accent" />
-                          <span className="text-xs font-medium text-card-foreground">Cards</span>
-                        </div>
-                        <Switch checked={access.creditCards} onCheckedChange={() => toggleUserAccess(user.id, 'creditCards')} />
-                      </div>
-                      <div className="flex items-center justify-between bg-muted/50 rounded-lg px-3 py-2.5">
-                        <div className="flex items-center gap-1.5">
-                          <FileText className="w-3.5 h-3.5 text-accent" />
-                          <span className="text-xs font-medium text-card-foreground">Loans</span>
-                        </div>
-                        <Switch checked={access.loanDisbursement} onCheckedChange={() => toggleUserAccess(user.id, 'loanDisbursement')} />
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            <div className="hidden md:block bg-card rounded-xl shadow-card border border-border overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/50">
-                    <TableHead className="min-w-[120px]">User</TableHead>
-                    <TableHead className="min-w-[160px]">Email</TableHead>
-                    <TableHead className="min-w-[100px]">Role</TableHead>
-                    <TableHead className="min-w-[120px]">
-                      <div className="flex items-center gap-1">
-                        <CreditCard className="w-3.5 h-3.5 text-accent" /> Credit Cards
-                      </div>
-                    </TableHead>
-                    <TableHead className="min-w-[120px]">
-                      <div className="flex items-center gap-1">
-                        <FileText className="w-3.5 h-3.5 text-accent" /> Loans
-                      </div>
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {DEMO_USERS.map(user => {
+            {loading ? (
+              <div className="flex items-center justify-center py-20">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
+              </div>
+            ) : (
+              <>
+                <div className="md:hidden space-y-3">
+                  {users.map(user => {
                     const access = userAccess[user.id] || { creditCards: false, loanDisbursement: false };
                     return (
-                      <TableRow key={user.id} className="hover:bg-muted/30">
-                        <TableCell className="font-medium text-sm">{user.name}</TableCell>
-                        <TableCell className="text-sm text-muted-foreground">{user.email}</TableCell>
-                        <TableCell>
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-accent/10 text-accent">
+                      <div key={user.id} className="bg-card rounded-xl border border-border shadow-card p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="min-w-0">
+                            <p className="font-semibold text-sm text-card-foreground truncate">{user.name}</p>
+                            <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                          </div>
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-accent/10 text-accent flex-shrink-0 ml-2">
                             {ROLE_LABELS[user.role]}
                           </span>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="flex items-center justify-between bg-muted/50 rounded-lg px-3 py-2.5">
+                            <div className="flex items-center gap-1.5">
+                              <CreditCard className="w-3.5 h-3.5 text-accent" />
+                              <span className="text-xs font-medium text-card-foreground">Cards</span>
+                            </div>
                             <Switch checked={access.creditCards} onCheckedChange={() => toggleUserAccess(user.id, 'creditCards')} />
-                            {access.creditCards ? <Check className="w-3.5 h-3.5 text-success" /> : <X className="w-3.5 h-3.5 text-destructive" />}
                           </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center justify-between bg-muted/50 rounded-lg px-3 py-2.5">
+                            <div className="flex items-center gap-1.5">
+                              <FileText className="w-3.5 h-3.5 text-accent" />
+                              <span className="text-xs font-medium text-card-foreground">Loans</span>
+                            </div>
                             <Switch checked={access.loanDisbursement} onCheckedChange={() => toggleUserAccess(user.id, 'loanDisbursement')} />
-                            {access.loanDisbursement ? <Check className="w-3.5 h-3.5 text-success" /> : <X className="w-3.5 h-3.5 text-destructive" />}
                           </div>
-                        </TableCell>
-                      </TableRow>
+                        </div>
+                      </div>
                     );
                   })}
-                </TableBody>
-              </Table>
-            </div>
+                </div>
+                <div className="hidden md:block bg-card rounded-xl shadow-card border border-border overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-muted/50">
+                        <TableHead className="min-w-[120px]">User</TableHead>
+                        <TableHead className="min-w-[160px]">Email</TableHead>
+                        <TableHead className="min-w-[100px]">Role</TableHead>
+                        <TableHead className="min-w-[120px]">
+                          <div className="flex items-center gap-1">
+                            <CreditCard className="w-3.5 h-3.5 text-accent" /> Credit Cards
+                          </div>
+                        </TableHead>
+                        <TableHead className="min-w-[120px]">
+                          <div className="flex items-center gap-1">
+                            <FileText className="w-3.5 h-3.5 text-accent" /> Loans
+                          </div>
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {users.map(user => {
+                        const access = userAccess[user.id] || { creditCards: false, loanDisbursement: false };
+                        return (
+                          <TableRow key={user.id} className="hover:bg-muted/30">
+                            <TableCell className="font-medium text-sm">{user.name}</TableCell>
+                            <TableCell className="text-sm text-muted-foreground">{user.email}</TableCell>
+                            <TableCell>
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-accent/10 text-accent">
+                                {ROLE_LABELS[user.role]}
+                              </span>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <Switch checked={access.creditCards} onCheckedChange={() => toggleUserAccess(user.id, 'creditCards')} />
+                                {access.creditCards ? <Check className="w-3.5 h-3.5 text-success" /> : <X className="w-3.5 h-3.5 text-destructive" />}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <Switch checked={access.loanDisbursement} onCheckedChange={() => toggleUserAccess(user.id, 'loanDisbursement')} />
+                                {access.loanDisbursement ? <Check className="w-3.5 h-3.5 text-success" /> : <X className="w-3.5 h-3.5 text-destructive" />}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
+              </>
+            )}
           </TabsContent>
 
           <TabsContent value="field-permissions" className="flex-1 overflow-y-auto space-y-4">

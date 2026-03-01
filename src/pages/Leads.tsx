@@ -30,6 +30,14 @@ interface Lead {
   bank_name: string;
   advisor_name: string;
   status: string;
+  activation_status: string;
+  card_variant: string;
+  application_no: string;
+  cust_type: string;
+  vkyc_status: string;
+  bkyc_status: string;
+  card_issued_date: string;
+  remark: string;
   utm_link: string;
   notes: string;
   created_at: string;
@@ -47,12 +55,13 @@ const statusColors: Record<string, string> = {
 };
 
 const LeadsPage = () => {
-  const { role } = useRole();
+  const { role, permissions } = useRole();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [editLead, setEditLead] = useState<Lead | null>(null);
   const [editStatus, setEditStatus] = useState('');
 
   useEffect(() => {
@@ -77,10 +86,28 @@ const LeadsPage = () => {
   });
 
   const handleStatusUpdate = async () => {
-    if (!selectedLead) return;
-    setLeads(prev => prev.map(l => l.id === selectedLead.id ? { ...l, status: editStatus } : l));
-    toast({ title: 'Lead updated', description: `${selectedLead.lead_id} status changed to ${editStatus}` });
-    setSelectedLead(null);
+    if (!editLead) return;
+    try {
+      await api.updateLead(editLead.id, {
+        applicant_name: editLead.applicant_name,
+        applicant_phone: editLead.applicant_phone,
+        applicant_email: editLead.applicant_email,
+        status: editStatus,
+        activation_status: editLead.activation_status,
+        card_variant: editLead.card_variant,
+        application_no: editLead.application_no,
+        cust_type: editLead.cust_type,
+        vkyc_status: editLead.vkyc_status,
+        bkyc_status: editLead.bkyc_status,
+        card_issued_date: editLead.card_issued_date,
+        remark: editLead.remark,
+      });
+      await fetchLeads();
+      toast({ title: 'Lead updated', description: `${editLead.lead_id} updated successfully` });
+      setEditLead(null);
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to update lead', variant: 'destructive' });
+    }
   };
 
   const stats = {
@@ -171,7 +198,6 @@ const LeadsPage = () => {
                 <TableHead>Date/Time</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Phone</TableHead>
-                <TableHead>Type</TableHead>
                 <TableHead>Product</TableHead>
                 <TableHead>Bank</TableHead>
                 <TableHead>Advisor</TableHead>
@@ -190,17 +216,16 @@ const LeadsPage = () => {
                   </TableCell>
                   <TableCell className="font-medium text-sm">{lead.applicant_name}</TableCell>
                   <TableCell className="text-sm">{lead.applicant_phone}</TableCell>
-                  <TableCell className="text-sm">{lead.type}</TableCell>
                   <TableCell className="text-sm">{lead.card_name}</TableCell>
                   <TableCell className="text-sm">{lead.bank_name}</TableCell>
-                  <TableCell className="text-sm">{lead.advisor_name}</TableCell>
+                  <TableCell className="text-sm">{lead.advisor_name || 'N/A'}</TableCell>
                   <TableCell>
                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${statusColors[lead.status] || ''}`}>
                       {lead.status}
                     </span>
                   </TableCell>
                   <TableCell>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => setSelectedLead(lead)}>
                       <Info className="w-4 h-4 text-muted-foreground" />
                     </Button>
                   </TableCell>
@@ -209,12 +234,16 @@ const LeadsPage = () => {
                       <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => { navigator.clipboard.writeText(lead.lead_id); toast({ title: 'Copied', description: 'Lead ID copied to clipboard' }); }}>
                         <Copy className="w-3.5 h-3.5 text-muted-foreground" />
                       </Button>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => { setSelectedLead(lead); setEditStatus(lead.status); }}>
-                        <Edit className="w-3.5 h-3.5 text-muted-foreground" />
-                      </Button>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => { if (confirm('Delete this lead?')) { setLeads(prev => prev.filter(l => l.id !== lead.id)); toast({ title: 'Deleted', description: 'Lead deleted successfully' }); } }}>
-                        <Trash2 className="w-3.5 h-3.5 text-destructive" />
-                      </Button>
+                      {(role === 'super_admin' || role === 'admin' || permissions?.leads?.edit) && (
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => { setEditLead(lead); setEditStatus(lead.status); }}>
+                          <Edit className="w-3.5 h-3.5 text-muted-foreground" />
+                        </Button>
+                      )}
+                      {(role === 'super_admin' || role === 'admin') && (
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => { if (confirm('Delete this lead?')) { setLeads(prev => prev.filter(l => l.id !== lead.id)); toast({ title: 'Deleted', description: 'Lead deleted successfully' }); } }}>
+                          <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                        </Button>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>
@@ -224,9 +253,9 @@ const LeadsPage = () => {
         </div>
       </div>
 
-      {/* Lead Detail Dialog */}
+      {/* Lead Info Dialog */}
       <Dialog open={!!selectedLead} onOpenChange={() => setSelectedLead(null)}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle className="font-display">Lead Details</DialogTitle></DialogHeader>
           {selectedLead && (
             <div className="space-y-4 mt-2">
@@ -235,17 +264,41 @@ const LeadsPage = () => {
                 <p className="font-mono font-bold text-accent">{selectedLead.lead_id}</p>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div><p className="text-xs text-muted-foreground">Name</p><p className="text-sm font-medium">{selectedLead.applicant_name}</p></div>
                 <div><p className="text-xs text-muted-foreground">Email</p><p className="text-sm font-medium truncate">{selectedLead.applicant_email}</p></div>
-                <div><p className="text-xs text-muted-foreground">Phone</p><p className="text-sm font-medium">{selectedLead.applicant_phone}</p></div>
-                <div><p className="text-xs text-muted-foreground">Card</p><p className="text-sm font-medium">{selectedLead.card_name}</p></div>
+                <div><p className="text-xs text-muted-foreground">Activation Status</p><p className="text-sm font-medium">{selectedLead.activation_status || '-'}</p></div>
+                <div><p className="text-xs text-muted-foreground">Card Variant</p><p className="text-sm font-medium">{selectedLead.card_variant || '-'}</p></div>
+                <div><p className="text-xs text-muted-foreground">Application No</p><p className="text-sm font-medium">{selectedLead.application_no || '-'}</p></div>
+                <div><p className="text-xs text-muted-foreground">Cust Type</p><p className="text-sm font-medium">{selectedLead.cust_type || '-'}</p></div>
+                <div><p className="text-xs text-muted-foreground">VKYC Status</p><p className="text-sm font-medium">{selectedLead.vkyc_status || '-'}</p></div>
+                <div><p className="text-xs text-muted-foreground">BKYC Status</p><p className="text-sm font-medium">{selectedLead.bkyc_status || '-'}</p></div>
+                <div><p className="text-xs text-muted-foreground">Card Issued Date</p><p className="text-sm font-medium">{selectedLead.card_issued_date || '-'}</p></div>
               </div>
-              {(role === 'super_admin' || role === 'admin' || role === 'manager') && (
+              {selectedLead.remark && (
+                <div><p className="text-xs text-muted-foreground">Remark</p><p className="text-sm font-medium">{selectedLead.remark}</p></div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Lead Edit Dialog */}
+      <Dialog open={!!editLead} onOpenChange={() => setEditLead(null)}>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader><DialogTitle className="font-display">Edit Lead</DialogTitle></DialogHeader>
+          {editLead && (
+            <div className="space-y-4 mt-2">
+              <div className="grid grid-cols-2 gap-3">
+                <div><Label>Customer Name</Label><Input value={editLead.applicant_name} onChange={e => setEditLead({...editLead, applicant_name: e.target.value})} className="mt-1.5" /></div>
+                <div><Label>Phone</Label><Input value={editLead.applicant_phone} onChange={e => setEditLead({...editLead, applicant_phone: e.target.value})} className="mt-1.5" /></div>
+                <div><Label>Email</Label><Input value={editLead.applicant_email} onChange={e => setEditLead({...editLead, applicant_email: e.target.value})} className="mt-1.5" /></div>
+                <div><Label>Product</Label><Input value={editLead.card_name} disabled className="mt-1.5 bg-muted" /></div>
+                <div><Label>Advisor</Label><Input value={editLead.advisor_name} disabled className="mt-1.5 bg-muted" /></div>
                 <div>
-                  <Label>Update Status</Label>
+                  <Label>Status</Label>
                   <Select value={editStatus} onValueChange={setEditStatus}>
                     <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
                     <SelectContent className="bg-popover border border-border z-50">
+                      <SelectItem value="Generated">Generated</SelectItem>
                       <SelectItem value="submitted">Submitted</SelectItem>
                       <SelectItem value="in_review">In Review</SelectItem>
                       <SelectItem value="approved">Approved</SelectItem>
@@ -253,9 +306,64 @@ const LeadsPage = () => {
                       <SelectItem value="rejected">Rejected</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Button onClick={handleStatusUpdate} className="w-full mt-3 gradient-accent text-accent-foreground border-0">Update Lead</Button>
                 </div>
-              )}
+                <div>
+                  <Label>Activation Status</Label>
+                  <Select value={editLead.activation_status || '-'} onValueChange={v => setEditLead({...editLead, activation_status: v})}>
+                    <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
+                    <SelectContent className="bg-popover border border-border z-50">
+                      <SelectItem value="-">-</SelectItem>
+                      <SelectItem value="PENDING">PENDING</SelectItem>
+                      <SelectItem value="COMPLETED">COMPLETED</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div><Label>Card Variant (MIS)</Label><Input value={editLead.card_variant || ''} onChange={e => setEditLead({...editLead, card_variant: e.target.value})} className="mt-1.5" /></div>
+                <div><Label>Application No (MIS)</Label><Input value={editLead.application_no || ''} onChange={e => setEditLead({...editLead, application_no: e.target.value})} className="mt-1.5" /></div>
+                <div>
+                  <Label>Cust Type</Label>
+                  <Select value={editLead.cust_type || '-'} onValueChange={v => setEditLead({...editLead, cust_type: v})}>
+                    <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
+                    <SelectContent className="bg-popover border border-border z-50">
+                      <SelectItem value="-">-</SelectItem>
+                      <SelectItem value="NEW">NEW</SelectItem>
+                      <SelectItem value="EXISTING">EXISTING</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>VKYC Status</Label>
+                  <Select value={editLead.vkyc_status || '-'} onValueChange={v => setEditLead({...editLead, vkyc_status: v})}>
+                    <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
+                    <SelectContent className="bg-popover border border-border z-50">
+                      <SelectItem value="-">-</SelectItem>
+                      <SelectItem value="PENDING">PENDING</SelectItem>
+                      <SelectItem value="EXPIRED">EXPIRED</SelectItem>
+                      <SelectItem value="REJECTED">REJECTED</SelectItem>
+                      <SelectItem value="COMPLETED">COMPLETED</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>BKYC Status</Label>
+                  <Select value={editLead.bkyc_status || '-'} onValueChange={v => setEditLead({...editLead, bkyc_status: v})}>
+                    <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
+                    <SelectContent className="bg-popover border border-border z-50">
+                      <SelectItem value="-">-</SelectItem>
+                      <SelectItem value="PENDING">PENDING</SelectItem>
+                      <SelectItem value="EXPIRED">EXPIRED</SelectItem>
+                      <SelectItem value="REJECTED">REJECTED</SelectItem>
+                      <SelectItem value="COMPLETED">COMPLETED</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div><Label>Card Issued Date</Label><Input type="date" value={editLead.card_issued_date || ''} onChange={e => setEditLead({...editLead, card_issued_date: e.target.value})} className="mt-1.5" /></div>
+              </div>
+              <div><Label>Remark</Label><Input value={editLead.remark || ''} onChange={e => setEditLead({...editLead, remark: e.target.value})} className="mt-1.5" /></div>
+              <div className="flex gap-2 pt-2">
+                <Button variant="outline" onClick={() => setEditLead(null)} className="flex-1">Cancel</Button>
+                <Button onClick={handleStatusUpdate} className="flex-1 gradient-accent text-accent-foreground border-0">Save</Button>
+              </div>
             </div>
           )}
         </DialogContent>
