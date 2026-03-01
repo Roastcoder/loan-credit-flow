@@ -62,7 +62,7 @@ const AppRoutes = () => {
       {moduleAccess.loanDisbursement && (
         <>
           <Route path="/loan-disbursement" element={<ProtectedRoute><LoanDisbursementPage /></ProtectedRoute>} />
-          <Route path="/loan-disbursement/new" element={<ProtectedRoute><NewLoanApplication /></ProtectedRoute>} />
+          <Route path="/loan-disbursement/new" element={<ProtectedRoute><PLBLForm /></ProtectedRoute>} />
           <Route path="/loan-disbursement/:id" element={<ProtectedRoute><LoanDetail /></ProtectedRoute>} />
           <Route path="/car-loan" element={<ProtectedRoute><CarLoan /></ProtectedRoute>} />
           <Route path="/home-loan" element={<ProtectedRoute><HomeLoan /></ProtectedRoute>} />
