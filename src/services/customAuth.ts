@@ -2,7 +2,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001
 
 export const customAuth = {
   signUp: async (mobile: string, mpin: string, name: string, employeeType: string, channelCode: string, pan: string, dob: string, aadhaar: string, aadhaarName: string, aadhaarAddress: string, aadhaarFatherName: string, email: string) => {
-    const response = await fetch(`${API_BASE_URL}/auth/signup.php`, {
+    const response = await fetch(`${API_BASE_URL}/api/auth/signup.php`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -34,7 +34,7 @@ export const customAuth = {
 
   signIn: async (identifier: string, mpin: string) => {
     console.log('Signing in with:', identifier, mpin);
-    const response = await fetch(`${API_BASE_URL}/auth/signin.php`, {
+    const response = await fetch(`${API_BASE_URL}/api/auth/signin.php`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ identifier, mpin }),

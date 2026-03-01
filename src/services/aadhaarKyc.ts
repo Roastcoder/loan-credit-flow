@@ -2,7 +2,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001
 
 export const aadhaarKycService = {
   sendOtp: async (aadhaarNumber: string) => {
-    const response = await fetch(`${API_BASE_URL}/aadhaar/send-otp.php`, {
+    const response = await fetch(`${API_BASE_URL}/api/aadhaar/send-otp.php`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ aadhaar_number: aadhaarNumber }),
@@ -19,7 +19,7 @@ export const aadhaarKycService = {
   },
 
   verifyOtp: async (aadhaarNumber: string, otp: string, requestId: string) => {
-    const response = await fetch(`${API_BASE_URL}/aadhaar/verify-otp.php`, {
+    const response = await fetch(`${API_BASE_URL}/api/aadhaar/verify-otp.php`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ session_id: requestId, otp }),

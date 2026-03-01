@@ -4,7 +4,7 @@ const SUREPASS_TOKEN = import.meta.env.VITE_SUREPASS_TOKEN || '';
 export const panService = {
   verifyPan: async (panNumber: string) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/pan/verify.php`, {
+      const response = await fetch(`${API_BASE_URL}/api/pan/verify.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id_number: panNumber }),
