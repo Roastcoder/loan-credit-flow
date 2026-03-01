@@ -13,7 +13,7 @@ const BottomNav = () => {
   // Main nav items (visible in bottom nav)
   const mainNavItems = [
     { path: '/', label: 'Home', icon: LayoutDashboard },
-    { path: '/leads', label: 'Leads', icon: Target },
+    ...(moduleAccess.creditCards ? [{ path: '/leads', label: 'Leads', icon: Target }] : []),
   ];
 
   const rightNavItems = [

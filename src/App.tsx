@@ -55,6 +55,7 @@ const AppRoutes = () => {
         <>
           <Route path="/credit-cards" element={<ProtectedRoute><CreditCards /></ProtectedRoute>} />
           <Route path="/credit-cards/:id" element={<ProtectedRoute><CardDetail /></ProtectedRoute>} />
+          <Route path="/leads" element={<ProtectedRoute><LeadsPage /></ProtectedRoute>} />
         </>
       )}
       {moduleAccess.loanDisbursement && (
@@ -68,7 +69,6 @@ const AppRoutes = () => {
       )}
       <Route path="/team-applications" element={<ProtectedRoute><TeamApplications /></ProtectedRoute>} />
       <Route path="/payouts" element={<ProtectedRoute><Payouts /></ProtectedRoute>} />
-      <Route path="/leads" element={<ProtectedRoute><LeadsPage /></ProtectedRoute>} />
       <Route path="/team" element={<ProtectedRoute><Team /></ProtectedRoute>} />
       <Route path="/teams" element={<ProtectedRoute><Teams /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />

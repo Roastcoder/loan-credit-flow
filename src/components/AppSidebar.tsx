@@ -24,7 +24,7 @@ const AppSidebar = () => {
     ...(moduleAccess.creditCards ? [{ path: '/credit-cards', label: 'Credit Cards', icon: CreditCard }] : []),
     ...(moduleAccess.loanDisbursement ? [{ path: '/loan-disbursement', label: 'Loan Disbursement', icon: FileText }] : []),
     { path: '/payouts', label: 'Payouts', icon: Wallet },
-    { path: '/leads', label: 'Leads', icon: Target },
+    ...(moduleAccess.creditCards ? [{ path: '/leads', label: 'Leads', icon: Target }] : []),
     ...((role === 'super_admin' || role === 'admin') ? [
       { path: '/teams', label: 'Teams', icon: UsersRound },
       { path: '/permissions', label: 'Permissions', icon: Users }
