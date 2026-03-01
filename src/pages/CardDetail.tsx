@@ -92,12 +92,15 @@ const CardDetail = () => {
         bank_name: card.bank,
       });
 
-      toast({ title: 'Application Submitted!', description: `Lead created for ${card.name}. Redirecting to bank...` });
+      toast({ title: 'Application Submitted!', description: `Lead ID: ${leadData.lead_id}. Redirecting to bank...` });
 
       setTimeout(() => {
-        // Replace {lead_id} in redirect URL with actual lead ID
-        const redirectUrl = card.redirect_url?.replace('{lead_id}', leadData.lead_id) || 
-          `https://bank.example.com/apply?card=${encodeURIComponent(card.name)}`;
+        // Get redirect URL from card data
+        let redirectUrl = card.redirect_url || `https://bank.example.com/apply?card=${encodeURIComponent(card.name)}`;
+        
+        // Replace {lead_id} placeholder with actual lead ID
+        redirectUrl = redirectUrl.replace('{lead_id}', leadData.lead_id);
+        
         window.open(redirectUrl, '_blank');
         navigate('/leads');
       }, 1500);
