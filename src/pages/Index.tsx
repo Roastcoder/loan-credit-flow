@@ -44,7 +44,7 @@ const Index = () => {
     }
   };
 
-  const activeCreditCards = creditCards.filter(c => c.status === 'active').length;
+  const activeCreditCards = creditCards.length;
   const totalDisbursed = mockDisbursements.filter(d => d.status === 'disbursed').reduce((sum, d) => sum + d.amount, 0);
   const pendingLoans = mockDisbursements.filter(d => d.status === 'pending').length;
   const totalCommission = creditCards.reduce((sum, c) => sum + (c.dsa_commission || c.dsaCommission || 0), 0);

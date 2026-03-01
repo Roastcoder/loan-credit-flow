@@ -237,7 +237,10 @@ const CreditCards = () => {
             return (
               <button
                 key={card.id}
-                onClick={() => navigate(`/credit-cards/${card.id}`)}
+                onClick={() => {
+                  const slug = card.name.toLowerCase().replace(/\s+/g, '-');
+                  navigate(`/credit-cards/${slug}`);
+                }}
                 className="bg-card rounded-xl border border-border shadow-card overflow-hidden text-left hover:shadow-elevated hover:border-accent/20 transition-all duration-200 group"
               >
                 <div className="flex flex-row">

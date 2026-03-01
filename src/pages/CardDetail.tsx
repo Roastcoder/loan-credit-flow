@@ -42,7 +42,11 @@ const CardDetail = () => {
   const fetchCard = async () => {
     try {
       const data = await api.getCreditCards();
-      const foundCard = data.records?.find((c: any) => String(c.id) === String(id));
+      // Try to find by slug (URL-friendly name) or fallback to ID
+      const slug = id?.toLowerCase().replace(/\s+/g, '-');
+      const foundCard = data.records?.find((c: any) => 
+        c.name.toLowerCase().replace(/\s+/g, '-') === slug || String(c.id) === String(id)
+      );
       setCard(foundCard);
     } catch (error) {
       console.error('Failed to fetch card:', error);
@@ -72,7 +76,7 @@ const CardDetail = () => {
   }
 
   const features = CARD_FEATURES[card.id] || ['Premium benefits', 'Reward points', 'Low interest rates'];
-  const imageUrl = CARD_IMAGES[card.id] || CARD_IMAGES['1'];
+  const imageUrl = card.card_image || card.variant_image || CARD_IMAGES['1'];
 
   const handleApply = async (e: React.FormEvent) => {
     e.preventDefault();
