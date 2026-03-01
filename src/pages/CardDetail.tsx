@@ -1,14 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import AppLayout from '@/components/AppLayout';
 import { ArrowLeft, Check, ExternalLink, Loader2 } from 'lucide-react';
 import { useRole } from '@/contexts/RoleContext';
-import { mockCreditCards } from '@/data/mockData';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from '@/hooks/use-toast';
+import { api } from '@/services/api';
 
 const CARD_IMAGES: Record<string, string> = {
   '1': 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&h=380&fit=crop',
@@ -30,10 +30,36 @@ const CardDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [cardLoading, setCardLoading] = useState(true);
   const [agreed, setAgreed] = useState(false);
   const [form, setForm] = useState({ name: '', email: '', phone: '' });
+  const [card, setCard] = useState<any>(null);
 
-  const card = mockCreditCards.find(c => c.id === id);
+  useEffect(() => {
+    fetchCard();
+  }, [id]);
+
+  const fetchCard = async () => {
+    try {
+      const data = await api.getCreditCards();
+      const foundCard = data.records?.find((c: any) => c.id === id);
+      setCard(foundCard);
+    } catch (error) {
+      console.error('Failed to fetch card:', error);
+    } finally {
+      setCardLoading(false);
+    }
+  };
+  if (cardLoading) {
+    return (
+      <AppLayout>
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="w-8 h-8 animate-spin text-accent" />
+        </div>
+      </AppLayout>
+    );
+  }
+
   if (!card) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -57,15 +83,26 @@ const CardDetail = () => {
     setLoading(true);
 
     try {
+      // Create lead
+      const leadData = await api.createLead({
+        applicant_name: form.name,
+        applicant_email: form.email,
+        applicant_phone: form.phone,
+        card_name: card.name,
+        bank_name: card.bank,
+      });
+
       toast({ title: 'Application Submitted!', description: `Lead created for ${card.name}. Redirecting to bank...` });
 
       setTimeout(() => {
-        const utmLink = `https://bank.example.com/apply?card=${encodeURIComponent(card.name)}&bank=${encodeURIComponent(card.bank)}&utm_source=fincore&utm_medium=dsa`;
-        window.open(utmLink, '_blank');
-        navigate('/credit-cards');
+        // Replace {lead_id} in redirect URL with actual lead ID
+        const redirectUrl = card.redirect_url?.replace('{lead_id}', leadData.lead_id) || 
+          `https://bank.example.com/apply?card=${encodeURIComponent(card.name)}`;
+        window.open(redirectUrl, '_blank');
+        navigate('/leads');
       }, 1500);
     } catch (err: any) {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+      toast({ title: 'Error', description: err.message || 'Failed to create lead', variant: 'destructive' });
     } finally {
       setLoading(false);
     }
