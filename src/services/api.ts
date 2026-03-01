@@ -79,6 +79,19 @@ export const api = {
     return response.json();
   },
 
+  deleteLead: async (id: string) => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const response = await fetch(`${API_BASE_URL}/api/leads/delete.php`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'X-User-Role': user.role || 'employee'
+      },
+      body: JSON.stringify({ id }),
+    });
+    return response.json();
+  },
+
   // PAN Verification
   verifyPAN: async (panNumber: string) => {
     const response = await fetch(`${API_BASE_URL}/api/pan/verify.php`, {

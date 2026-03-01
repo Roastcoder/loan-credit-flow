@@ -63,6 +63,7 @@ const LeadsPage = () => {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [editLead, setEditLead] = useState<Lead | null>(null);
   const [editStatus, setEditStatus] = useState('');
+  const [deleteConfirm, setDeleteConfirm] = useState<Lead | null>(null);
 
   useEffect(() => {
     fetchLeads();
@@ -107,6 +108,18 @@ const LeadsPage = () => {
       setEditLead(null);
     } catch (error) {
       toast({ title: 'Error', description: 'Failed to update lead', variant: 'destructive' });
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deleteConfirm) return;
+    try {
+      await api.deleteLead(deleteConfirm.id);
+      await fetchLeads();
+      toast({ title: 'Lead deleted', description: 'Lead has been removed' });
+      setDeleteConfirm(null);
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to delete lead', variant: 'destructive' });
     }
   };
 
@@ -240,7 +253,7 @@ const LeadsPage = () => {
                         </Button>
                       )}
                       {(role === 'super_admin' || role === 'admin') && (
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => { if (confirm('Delete this lead?')) { setLeads(prev => prev.filter(l => l.id !== lead.id)); toast({ title: 'Deleted', description: 'Lead deleted successfully' }); } }}>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => setDeleteConfirm(lead)}>
                           <Trash2 className="w-3.5 h-3.5 text-destructive" />
                         </Button>
                       )}
@@ -363,6 +376,22 @@ const LeadsPage = () => {
               <div className="flex gap-2 pt-2">
                 <Button variant="outline" onClick={() => setEditLead(null)} className="flex-1">Cancel</Button>
                 <Button onClick={handleStatusUpdate} className="flex-1 gradient-accent text-accent-foreground border-0">Save</Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader><DialogTitle className="font-display">Delete Lead</DialogTitle></DialogHeader>
+          {deleteConfirm && (
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">Are you sure you want to delete lead <span className="font-bold text-foreground">{deleteConfirm.lead_id}</span>? This action cannot be undone.</p>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => setDeleteConfirm(null)} className="flex-1">Cancel</Button>
+                <Button onClick={handleDelete} variant="destructive" className="flex-1">Delete</Button>
               </div>
             </div>
           )}
