@@ -513,6 +513,7 @@ const NewLoanApplication = () => {
             </Button>
           </div>
         </form>
+        </div>
       </div>
     </AppLayout>
   );
