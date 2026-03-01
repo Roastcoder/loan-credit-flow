@@ -8,7 +8,7 @@ RUN npm ci
 COPY . .
 
 # Set API URL as build argument
-ARG VITE_API_BASE_URL=https://appbackend.finonest.com/api
+ARG VITE_API_BASE_URL=https://appbackend.finonest.com
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 
 RUN npm run build
