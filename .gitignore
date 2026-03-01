@@ -1,1 +1,8 @@
 dist/
+backend/
+node_modules/
+*.py
+verify_cards.py
+fix_nulls.py
+migrate_credit_cards.py
+check_tables.py
