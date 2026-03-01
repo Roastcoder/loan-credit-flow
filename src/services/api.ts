@@ -116,4 +116,13 @@ export const api = {
     });
     return response.json();
   },
+
+  updateUserRole: async (userId: string, role: string) => {
+    const response = await fetch(`${API_BASE_URL}/api/permissions/update-role.php`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: userId, role }),
+    });
+    return response.json();
+  },
 };

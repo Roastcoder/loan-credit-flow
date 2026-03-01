@@ -120,6 +120,16 @@ const PermissionsPage = () => {
     }
   };
 
+  const handleRoleChange = async (userId: string, newRole: string) => {
+    try {
+      await api.updateUserRole(userId, newRole);
+      setUsers(prev => prev.map(u => u.id === userId ? { ...u, role: newRole } : u));
+      toast({ title: 'Role Updated', description: 'User role updated successfully' });
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to update role', variant: 'destructive' });
+    }
+  };
+
   const toggleRolePerm = (r: UserRole, module: 'creditCards' | 'loanDisbursement', perm: keyof Permission) => {
     setRolePermissions(prev => ({
       ...prev,
@@ -341,7 +351,7 @@ const PermissionsPage = () => {
                       <TableRow className="bg-muted/50">
                         <TableHead className="min-w-[120px]">User</TableHead>
                         <TableHead className="min-w-[160px]">Email</TableHead>
-                        <TableHead className="min-w-[100px]">Role</TableHead>
+                        <TableHead className="min-w-[140px]">Role</TableHead>
                         <TableHead className="min-w-[120px]">
                           <div className="flex items-center gap-1">
                             <CreditCard className="w-3.5 h-3.5 text-accent" /> Credit Cards
@@ -362,9 +372,18 @@ const PermissionsPage = () => {
                             <TableCell className="font-medium text-sm">{user.name}</TableCell>
                             <TableCell className="text-sm text-muted-foreground">{user.email}</TableCell>
                             <TableCell>
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-accent/10 text-accent">
-                                {ROLE_LABELS[user.role]}
-                              </span>
+                              <Select value={user.role} onValueChange={(val) => handleRoleChange(user.id, val)}>
+                                <SelectTrigger className="h-8 text-xs w-32">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent className="bg-popover border border-border z-50">
+                                  <SelectItem value="employee">Employee</SelectItem>
+                                  <SelectItem value="dsa_partner">DSA</SelectItem>
+                                  <SelectItem value="team_leader">DST</SelectItem>
+                                  <SelectItem value="manager">Manager</SelectItem>
+                                  <SelectItem value="admin">Admin</SelectItem>
+                                </SelectContent>
+                              </Select>
                             </TableCell>
                             <TableCell>
                               <div className="flex items-center gap-2">
