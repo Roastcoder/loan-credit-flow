@@ -78,7 +78,6 @@ const Login = () => {
           setLoading(false);
           return;
         }
-        console.log('Entered OTP:', form.otp, 'Generated OTP:', generatedOtp);
         if (form.otp !== generatedOtp.toString()) {
           toast({ title: 'Error', description: 'Invalid OTP. Please try again.', variant: 'destructive' });
           setLoading(false);
@@ -176,7 +175,6 @@ const Login = () => {
     }
     try {
       const { otp } = await smsService.sendOtp(form.mobile);
-      console.log('Generated OTP:', otp);
       setGeneratedOtp(otp.toString());
       setOtpTimer(60);
       toast({ title: 'OTP Sent', description: 'OTP sent to your mobile number.' });
