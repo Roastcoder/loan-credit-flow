@@ -1,6 +1,21 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
 export const api = {
+  // Banks
+  getBanks: async () => {
+    const response = await fetch(`${API_BASE_URL}/api/banks/read.php`);
+    return response.json();
+  },
+
+  createBank: async (data: any) => {
+    const response = await fetch(`${API_BASE_URL}/api/banks/create.php`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    return response.json();
+  },
+
   // Credit Cards
   getCreditCards: async () => {
     const response = await fetch(`${API_BASE_URL}/api/credit-cards/read.php`);

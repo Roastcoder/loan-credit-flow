@@ -24,6 +24,8 @@ const CreditCards = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [isOpen, setIsOpen] = useState(false);
+  const [banks, setBanks] = useState<any[]>([]);
+  const [customBankInput, setCustomBankInput] = useState('');
   const [newCard, setNewCard] = useState({
     name: '', bank: '', category: 'credit_card', commission: '', redirectUrl: '', payoutSource: '',
     status: true, variantImage: null as File | null, cardImage: null as File | null,
@@ -32,7 +34,17 @@ const CreditCards = () => {
 
   useEffect(() => {
     fetchCards();
+    fetchBanks();
   }, []);
+
+  const fetchBanks = async () => {
+    try {
+      const data = await api.getBanks();
+      setBanks(data.banks || []);
+    } catch (error) {
+      console.error('Failed to fetch banks:', error);
+    }
+  };
 
   const fetchCards = async () => {
     try {
@@ -51,12 +63,22 @@ const CreditCards = () => {
 
   const handleAddCard = async () => {
     try {
+      // If custom bank, add it first
+      if (newCard.bank === 'custom' && customBankInput) {
+        await api.createBank({ name: customBankInput });
+        await fetchBanks();
+      }
+
       await api.createCreditCard({
         name: newCard.name,
-        bank: newCard.bank,
+        bank: newCard.bank === 'custom' ? customBankInput : newCard.bank,
         type: newCard.category,
         dsa_commission: Number(newCard.commission),
         reward_points: newCard.highlights,
+        redirect_url: newCard.redirectUrl,
+        payout_source: newCard.payoutSource,
+        pincodes: newCard.pincodes,
+        terms: newCard.terms,
         status: newCard.status ? 'active' : 'inactive',
       });
       await fetchCards();
@@ -64,6 +86,7 @@ const CreditCards = () => {
         name: '', bank: '', category: 'credit_card', commission: '', redirectUrl: '', payoutSource: '',
         status: true, variantImage: null, cardImage: null, pincodes: '', highlights: '', terms: ''
       });
+      setCustomBankInput('');
       setIsOpen(false);
     } catch (error) {
       console.error('Failed to create card:', error);
@@ -92,16 +115,25 @@ const CreditCards = () => {
                 <div className="space-y-4 mt-4">
                   <div>
                     <Label>Bank Name</Label>
-                    <Select value={newCard.bank} onValueChange={(v) => setNewCard({ ...newCard, bank: v })}>
-                      <SelectTrigger><SelectValue placeholder="-- Select Bank --" /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="HDFC Bank">HDFC Bank</SelectItem>
-                        <SelectItem value="ICICI Bank">ICICI Bank</SelectItem>
-                        <SelectItem value="SBI">SBI</SelectItem>
-                        <SelectItem value="Axis Bank">Axis Bank</SelectItem>
-                        <SelectItem value="Kotak Mahindra Bank">Kotak Mahindra Bank</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <div className="space-y-2">
+                      <Select value={newCard.bank} onValueChange={(v) => setNewCard({ ...newCard, bank: v })}>
+                        <SelectTrigger><SelectValue placeholder="-- Select Bank --" /></SelectTrigger>
+                        <SelectContent>
+                          {banks.map(bank => (
+                            <SelectItem key={bank.id} value={bank.name}>{bank.name}</SelectItem>
+                          ))}
+                          <SelectItem value="custom">+ Add Custom Bank</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {newCard.bank === 'custom' && (
+                        <Input 
+                          placeholder="Enter custom bank name" 
+                          value={customBankInput}
+                          onChange={e => setCustomBankInput(e.target.value)}
+                          autoFocus
+                        />
+                      )}
+                    </div>
                   </div>
                   <div>
                     <Label>Product Name *</Label>
