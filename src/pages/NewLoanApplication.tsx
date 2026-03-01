@@ -168,7 +168,8 @@ const NewLoanApplication = () => {
   if (!selectedType) {
     return (
       <AppLayout>
-        <div className="space-y-6 max-w-5xl">
+        <div className="-m-4 md:-m-6 lg:-m-8">
+          <div className="px-4 md:px-6 lg:px-8 py-6 space-y-6">
           <div>
             <h1 className="text-2xl md:text-3xl font-display font-bold text-foreground">Create a New Application</h1>
             <p className="text-muted-foreground mt-1 text-sm">Select the type of application you want to create.</p>
@@ -191,6 +192,7 @@ const NewLoanApplication = () => {
               </button>
             ))}
           </div>
+          </div>
         </div>
       </AppLayout>
     );
@@ -204,7 +206,8 @@ const NewLoanApplication = () => {
   // Step 2: Application Form
   return (
     <AppLayout>
-      <div className="max-w-5xl space-y-6">
+      <div className="-m-4 md:-m-6 lg:-m-8">
+        <div className="px-4 md:px-6 lg:px-8 py-6 space-y-6">
         {/* Header */}
         <div className="flex items-center gap-3">
           <button onClick={() => setSelectedType(null)} className="p-2 rounded-lg hover:bg-muted transition-colors">
