@@ -244,7 +244,7 @@ const CreditCards = () => {
                   {/* Card Image */}
                   <div className="w-36 sm:w-44 flex-shrink-0 bg-muted/30 flex items-center justify-center p-4">
                     <img
-                      src={CARD_IMAGES[card.id] || CARD_IMAGES['1']}
+                      src={(card as any).card_image || '/cards/card_1758966564_4428.png'}
                       alt={card.name}
                       className="w-full h-auto rounded-lg object-cover shadow-elevated group-hover:scale-105 transition-transform duration-300"
                     />
