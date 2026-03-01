@@ -101,10 +101,12 @@ const PermissionsPage = () => {
   }
 
   const toggleUserAccess = async (userId: string, module: 'creditCards' | 'loanDisbursement') => {
+    const currentAccess = userAccess[userId] || { creditCards: false, loanDisbursement: false };
     const newAccess = {
-      ...userAccess[userId],
-      [module]: !userAccess[userId]?.[module]
+      ...currentAccess,
+      [module]: !currentAccess[module]
     };
+    
     setUserAccess(prev => ({
       ...prev,
       [userId]: newAccess,
@@ -113,9 +115,8 @@ const PermissionsPage = () => {
     // Save to database
     try {
       await api.updateUserPermissions(userId, { access: newAccess });
-      toast({ title: 'Saved', description: 'User access updated successfully' });
     } catch (error) {
-      toast({ title: 'Error', description: 'Failed to save permissions', variant: 'destructive' });
+      console.error('Failed to save permissions:', error);
     }
   };
 
