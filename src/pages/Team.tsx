@@ -4,13 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 
-const mockTeamMembers = [
-  { id: '1', name: 'Amit Sharma', role: 'Team Leader', mobile: '9876543210', teamNumber: 'TM001', status: 'Active' },
-  { id: '2', name: 'Priya Verma', role: 'Employee', mobile: '9876543211', teamNumber: 'TM001', status: 'Active' },
-  { id: '3', name: 'Rahul Kumar', role: 'Employee', mobile: '9876543212', teamNumber: 'TM001', status: 'Active' },
-  { id: '4', name: 'Sneha Patel', role: 'Employee', mobile: '9876543213', teamNumber: 'TM001', status: 'Active' },
-  { id: '5', name: 'Vikram Singh', role: 'Employee', mobile: '9876543214', teamNumber: 'TM001', status: 'Inactive' },
-];
+const mockTeamMembers: any[] = [];
 
 const Team = () => {
   const [searchQuery, setSearchQuery] = useState('');
