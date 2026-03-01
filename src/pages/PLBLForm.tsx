@@ -24,19 +24,19 @@ const PLBLForm = () => {
 
   return (
     <AppLayout>
-      <div className="space-y-4">
+      <div className="space-y-4 pb-20 md:pb-6">
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+          <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="md:flex hidden">
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
-            <h1 className="text-2xl font-display font-bold">PL/BL Disbursement Form</h1>
-            <p className="text-sm text-muted-foreground">Personal Loan / Business Loan Application</p>
+            <h1 className="text-xl md:text-2xl font-display font-bold">PL/BL Disbursement Form</h1>
+            <p className="text-xs md:text-sm text-muted-foreground">Personal Loan / Business Loan Application</p>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-card rounded-xl p-6 shadow-card border border-border space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className="bg-card rounded-xl p-4 md:p-6 shadow-card border border-border space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
               <Label htmlFor="customerName">Customer Name *</Label>
               <Input id="customerName" value={form.customerName} onChange={e => setForm({...form, customerName: e.target.value})} required className="mt-1.5" />
