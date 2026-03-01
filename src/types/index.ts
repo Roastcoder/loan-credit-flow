@@ -14,12 +14,17 @@ export interface CreditCardProduct {
   name: string;
   bank: string;
   type: string;
-  annualFee: number;
-  joiningFee: number;
-  dsaCommission: number;
-  rewardPoints: string;
+  annual_fee?: number;
+  annualFee?: number;
+  joining_fee?: number;
+  joiningFee?: number;
+  dsa_commission?: number;
+  dsaCommission?: number;
+  reward_points?: string;
+  rewardPoints?: string;
   status: 'active' | 'inactive';
-  createdAt: string;
+  created_at?: string;
+  createdAt?: string;
 }
 
 export type LoanCategory = 'car_loan' | 'used_car_loan' | 'personal_loan' | 'business_loan' | 'home_loan' | 'other';

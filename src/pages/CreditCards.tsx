@@ -242,7 +242,7 @@ const CreditCards = () => {
                     </ul>
 
                     {(role === 'dsa_partner' || role === 'super_admin' || role === 'admin') && (
-                      <p className="mt-3 text-xs font-bold text-accent">Commission: ₹{card.dsaCommission.toLocaleString()}</p>
+                      <p className="mt-3 text-xs font-bold text-accent">Commission: ₹{(card.dsaCommission || card.dsa_commission || 0).toLocaleString()}</p>
                     )}
                   </div>
                 </div>
