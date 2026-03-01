@@ -31,6 +31,15 @@ export const api = {
     return response.json();
   },
 
+  updateCreditCard: async (id: string, data: any) => {
+    const response = await fetch(`${API_BASE_URL}/api/credit-cards/update.php`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, ...data }),
+    });
+    return response.json();
+  },
+
   // Loan Disbursements
   getLoanDisbursements: async () => {
     const response = await fetch(`${API_BASE_URL}/api/loans/read.php`);

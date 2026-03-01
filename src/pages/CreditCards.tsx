@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Search, Check, CreditCard as CreditCardIcon } from 'lucide-react';
+import { Plus, Search, Check, CreditCard as CreditCardIcon, Edit } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '@/components/AppLayout';
 import { useRole } from '@/contexts/RoleContext';
@@ -24,6 +24,7 @@ const CreditCards = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [isOpen, setIsOpen] = useState(false);
+  const [editCard, setEditCard] = useState<CreditCardProduct | null>(null);
   const [banks, setBanks] = useState<any[]>([]);
   const [customBankInput, setCustomBankInput] = useState('');
   const [newCard, setNewCard] = useState({
@@ -63,33 +64,46 @@ const CreditCards = () => {
 
   const handleAddCard = async () => {
     try {
-      // If custom bank, add it first
       if (newCard.bank === 'custom' && customBankInput) {
         await api.createBank({ name: customBankInput });
         await fetchBanks();
       }
 
-      await api.createCreditCard({
-        name: newCard.name,
-        bank: newCard.bank === 'custom' ? customBankInput : newCard.bank,
-        type: newCard.category,
-        dsa_commission: Number(newCard.commission),
-        reward_points: newCard.highlights,
-        redirect_url: newCard.redirectUrl,
-        payout_source: newCard.payoutSource,
-        pincodes: newCard.pincodes,
-        terms: newCard.terms,
-        status: newCard.status ? 'active' : 'inactive',
-      });
+      if (editCard) {
+        await api.updateCreditCard(editCard.id, {
+          name: newCard.name,
+          bank: newCard.bank === 'custom' ? customBankInput : newCard.bank,
+          type: newCard.category,
+          dsa_commission: Number(newCard.commission),
+          reward_points: newCard.highlights,
+          redirect_url: newCard.redirectUrl,
+          payout_source: newCard.payoutSource,
+          status: newCard.status ? 'active' : 'inactive',
+        });
+      } else {
+        await api.createCreditCard({
+          name: newCard.name,
+          bank: newCard.bank === 'custom' ? customBankInput : newCard.bank,
+          type: newCard.category,
+          dsa_commission: Number(newCard.commission),
+          reward_points: newCard.highlights,
+          redirect_url: newCard.redirectUrl,
+          payout_source: newCard.payoutSource,
+          pincodes: newCard.pincodes,
+          terms: newCard.terms,
+          status: newCard.status ? 'active' : 'inactive',
+        });
+      }
       await fetchCards();
       setNewCard({
         name: '', bank: '', category: 'credit_card', commission: '', redirectUrl: '', payoutSource: '',
         status: true, variantImage: null, cardImage: null, pincodes: '', highlights: '', terms: ''
       });
       setCustomBankInput('');
+      setEditCard(null);
       setIsOpen(false);
     } catch (error) {
-      console.error('Failed to create card:', error);
+      console.error('Failed to save card:', error);
     }
   };
 
@@ -111,7 +125,7 @@ const CreditCards = () => {
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader><DialogTitle className="font-display">Add New Product</DialogTitle></DialogHeader>
+                <DialogHeader><DialogTitle className="font-display">{editCard ? 'Edit Product' : 'Add New Product'}</DialogTitle></DialogHeader>
                 <div className="space-y-4 mt-4">
                   <div>
                     <Label>Bank Name</Label>
@@ -193,8 +207,8 @@ const CreditCards = () => {
                     <Textarea value={newCard.terms} onChange={e => setNewCard({ ...newCard, terms: e.target.value })} placeholder="Enter terms and conditions" rows={3} />
                   </div>
                   <div className="flex gap-2 pt-2">
-                    <Button variant="outline" onClick={() => setIsOpen(false)} className="flex-1">Cancel</Button>
-                    <Button onClick={handleAddCard} className="flex-1 gradient-accent text-accent-foreground border-0">Add Product</Button>
+                    <Button variant="outline" onClick={() => { setIsOpen(false); setEditCard(null); }} className="flex-1">Cancel</Button>
+                    <Button onClick={handleAddCard} className="flex-1 gradient-accent text-accent-foreground border-0">{editCard ? 'Update' : 'Add'} Product</Button>
                   </div>
                 </div>
               </DialogContent>
@@ -229,8 +243,40 @@ const CreditCards = () => {
 
                   {/* Card Info */}
                   <div className="flex-1 p-4 min-w-0">
-                    <p className="text-xs font-semibold text-accent">{card.bank}</p>
-                    <h3 className="text-base font-display font-bold text-card-foreground mt-0.5 truncate">{card.name}</h3>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold text-accent">{card.bank}</p>
+                        <h3 className="text-base font-display font-bold text-card-foreground mt-0.5 truncate">{card.name}</h3>
+                      </div>
+                      {(role === 'super_admin' || role === 'admin') && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditCard(card);
+                            setNewCard({
+                              name: card.name,
+                              bank: card.bank,
+                              category: 'credit_card',
+                              commission: String(card.dsa_commission || card.dsaCommission || 0),
+                              redirectUrl: '',
+                              payoutSource: '',
+                              status: card.status === 'active',
+                              variantImage: null,
+                              cardImage: null,
+                              pincodes: '',
+                              highlights: card.reward_points || card.rewardPoints || '',
+                              terms: ''
+                            });
+                            setIsOpen(true);
+                          }}
+                          className="ml-2"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
 
                     <ul className="mt-3 space-y-1.5">
                       {features.map((f, i) => (
