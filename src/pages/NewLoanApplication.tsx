@@ -98,6 +98,16 @@ const NewLoanApplication = () => {
     }));
   }, []);
 
+  useEffect(() => {
+    // Auto-fetch from DB when RC number is entered (10+ characters)
+    if (form.rcNumber.length >= 10 && rcVerifyCount === 0) {
+      const timer = setTimeout(() => {
+        handleVerifyRC();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [form.rcNumber]);
+
   const handleVerifyRC = async () => {
     if (!form.rcNumber) {
       toast({ title: 'Error', description: 'Please enter RC number', variant: 'destructive' });
@@ -110,12 +120,6 @@ const NewLoanApplication = () => {
       if (result.success && result.data) {
         const d = result.data;
         
-        // Convert YYYY-MM format to YYYY-MM-01 for date input
-        let mfgDate = '';
-        if (d.manufacturing_date_formatted) {
-          mfgDate = d.manufacturing_date_formatted + '-01';
-        }
-        
         setForm(prev => ({
           ...prev,
           ownerName: d.owner_name || prev.ownerName,
@@ -126,7 +130,7 @@ const NewLoanApplication = () => {
           engineNumber: d.vehicle_engine_number || prev.engineNumber,
           financier: d.financer || prev.financier,
           financedStatus: d.financed ? 'Financed' : 'Not Financed',
-          manufacturingDate: mfgDate || prev.manufacturingDate,
+          manufacturingDate: d.manufacturing_date_formatted || prev.manufacturingDate,
           insuranceCompany: d.insurance_company || prev.insuranceCompany,
           insuranceValidUpto: d.insurance_upto || prev.insuranceValidUpto,
           puccValidUpto: d.pucc_upto || prev.puccValidUpto,
@@ -137,7 +141,10 @@ const NewLoanApplication = () => {
         setRcVerifyCount(prev => prev + 1);
       }
     } catch (error: any) {
-      toast({ title: 'Verification Failed', description: error.message, variant: 'destructive' });
+      // Silent fail for auto-fetch, only show error on manual verify
+      if (rcVerifyCount > 0) {
+        toast({ title: 'Verification Failed', description: error.message, variant: 'destructive' });
+      }
     } finally {
       setVerifyingRC(false);
     }
