@@ -9,6 +9,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import { toast } from '@/hooks/use-toast';
+import { rcService } from '@/services/rcService';
 import type { LoanCategory } from '@/types';
 
 const LOAN_TYPES = [
@@ -44,6 +45,7 @@ const NewLoanApplication = () => {
   const preselect = (location.state as { preselect?: LoanCategory })?.preselect || null;
   const [selectedType, setSelectedType] = useState<LoanCategory | null>(preselect);
   const [loading, setLoading] = useState(false);
+  const [verifyingRC, setVerifyingRC] = useState(false);
 
   const [form, setForm] = useState({
     // Customer Details
@@ -85,6 +87,40 @@ const NewLoanApplication = () => {
   });
 
   const update = (key: string, value: string) => setForm(prev => ({ ...prev, [key]: value }));
+
+  const handleVerifyRC = async () => {
+    if (!form.rcNumber) {
+      toast({ title: 'Error', description: 'Please enter RC number', variant: 'destructive' });
+      return;
+    }
+    setVerifyingRC(true);
+    try {
+      const result = await rcService.verifyRC(form.rcNumber);
+      if (result.success && result.data) {
+        const d = result.data;
+        setForm(prev => ({
+          ...prev,
+          ownerName: d.owner_name || prev.ownerName,
+          makerDescription: d.maker_description || prev.makerDescription,
+          makerModel: d.maker_model || prev.makerModel,
+          fuelType: d.fuel_type || prev.fuelType,
+          chassisNumber: d.vehicle_chasi_number || prev.chassisNumber,
+          engineNumber: d.vehicle_engine_number || prev.engineNumber,
+          financier: d.financer || prev.financier,
+          financedStatus: d.financed ? 'Financed' : 'Not Financed',
+          manufacturingDate: d.manufacturing_date_formatted || prev.manufacturingDate,
+          insuranceCompany: d.insurance_company || prev.insuranceCompany,
+          insuranceValidUpto: d.insurance_upto || prev.insuranceValidUpto,
+          puccValidUpto: d.pucc_upto || prev.puccValidUpto,
+        }));
+        toast({ title: 'RC Verified!', description: `Vehicle details fetched for ${d.owner_name}` });
+      }
+    } catch (error: any) {
+      toast({ title: 'Verification Failed', description: error.message, variant: 'destructive' });
+    } finally {
+      setVerifyingRC(false);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -200,7 +236,12 @@ const NewLoanApplication = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label className="text-xs font-semibold">RC Number <span className="text-destructive">*</span></Label>
-                    <Input value={form.rcNumber} onChange={e => update('rcNumber', e.target.value)} placeholder="Enter RC number" className="mt-1.5" />
+                    <div className="flex gap-2 mt-1.5">
+                      <Input value={form.rcNumber} onChange={e => update('rcNumber', e.target.value.toUpperCase())} placeholder="Enter RC number" />
+                      <Button type="button" onClick={handleVerifyRC} disabled={verifyingRC} variant="outline" className="whitespace-nowrap">
+                        {verifyingRC ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Verify'}
+                      </Button>
+                    </div>
                   </div>
                   <div>
                     <Label className="text-xs font-semibold">Engine Number <span className="text-destructive">*</span></Label>
