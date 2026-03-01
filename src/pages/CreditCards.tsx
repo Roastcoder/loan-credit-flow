@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Plus, Search, Check, CreditCard as CreditCardIcon, Edit } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '@/components/AppLayout';
@@ -21,8 +21,14 @@ const CreditCards = () => {
   const { role, permissions } = useRole();
   const navigate = useNavigate();
   const [cards, setCards] = useState<CreditCardProduct[]>([]);
+  const [displayedCards, setDisplayedCards] = useState<CreditCardProduct[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+  const CARDS_PER_PAGE = 10;
   const [isOpen, setIsOpen] = useState(false);
   const [editCard, setEditCard] = useState<CreditCardProduct | null>(null);
   const [banks, setBanks] = useState<any[]>([]);
@@ -37,6 +43,52 @@ const CreditCards = () => {
     fetchCards();
     fetchBanks();
   }, []);
+
+  useEffect(() => {
+    const filtered = cards.filter(c =>
+      c.name.toLowerCase().includes(search.toLowerCase()) || c.bank.toLowerCase().includes(search.toLowerCase())
+    );
+    setDisplayedCards(filtered.slice(0, CARDS_PER_PAGE));
+    setPage(1);
+  }, [search, cards]);
+
+  useEffect(() => {
+    if (!loadMoreRef.current) return;
+
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !loadingMore) {
+          loadMore();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observerRef.current.observe(loadMoreRef.current);
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [displayedCards, loadingMore]);
+
+  const loadMore = useCallback(() => {
+    const filtered = cards.filter(c =>
+      c.name.toLowerCase().includes(search.toLowerCase()) || c.bank.toLowerCase().includes(search.toLowerCase())
+    );
+    const nextPage = page + 1;
+    const newCards = filtered.slice(0, nextPage * CARDS_PER_PAGE);
+    
+    if (newCards.length > displayedCards.length) {
+      setLoadingMore(true);
+      setTimeout(() => {
+        setDisplayedCards(newCards);
+        setPage(nextPage);
+        setLoadingMore(false);
+      }, 300);
+    }
+  }, [cards, search, page, displayedCards.length]);
 
   const fetchBanks = async () => {
     try {
@@ -62,6 +114,7 @@ const CreditCards = () => {
   const filteredCards = cards.filter(c =>
     c.name.toLowerCase().includes(search.toLowerCase()) || c.bank.toLowerCase().includes(search.toLowerCase())
   );
+  const hasMore = displayedCards.length < filteredCards.length;
 
   const handleAddCard = async () => {
     try {
@@ -232,7 +285,7 @@ const CreditCards = () => {
           </div>
         ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {filteredCards.map(card => {
+          {displayedCards.map(card => {
             const features = CARD_FEATURES[card.id] || ['Premium benefits', 'Reward points', 'Low interest rates'];
             return (
               <button
@@ -308,6 +361,17 @@ const CreditCards = () => {
             );
           })}
         </div>
+        )}
+        
+        {!loading && hasMore && (
+          <div ref={loadMoreRef} className="flex justify-center py-8">
+            {loadingMore && (
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent mx-auto"></div>
+                <p className="text-muted-foreground text-sm mt-2">Loading more cards...</p>
+              </div>
+            )}
+          </div>
         )}
       </div>
     </AppLayout>
