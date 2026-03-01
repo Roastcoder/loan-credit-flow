@@ -27,6 +27,9 @@ export const customAuth = {
     }
     
     const data = await response.json();
+    if (data.error) {
+      throw new Error(data.error);
+    }
     localStorage.setItem('auth_token', data.token);
     localStorage.setItem('user', JSON.stringify(data.user));
     return { success: data.success, error: null };
