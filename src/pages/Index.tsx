@@ -67,10 +67,18 @@ const Index = () => {
         <>
           {/* Admin Stats */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <StatCard title="Active Cards" value={activeCreditCards} subtitle="Products" icon={CreditCard} trend="up" trendValue="+2" />
-            <StatCard title="Disbursed" value={`₹${(totalDisbursed / 100000).toFixed(1)}L`} subtitle="Total" icon={TrendingUp} trend="up" trendValue="+15%" />
-            <StatCard title="Total Leads" value="0" subtitle="This month" icon={Target} trend="up" trendValue="+0" />
-            <StatCard title="Team Members" value="0" subtitle="Active" icon={Users} />
+            <div onClick={() => navigate('/credit-cards')} className="cursor-pointer active:scale-95 transition-transform">
+              <StatCard title="Active Cards" value={activeCreditCards} subtitle="Products" icon={CreditCard} trend="up" trendValue="+2" />
+            </div>
+            <div onClick={() => navigate('/loan-disbursement')} className="cursor-pointer active:scale-95 transition-transform">
+              <StatCard title="Disbursed" value={`₹${(totalDisbursed / 100000).toFixed(1)}L`} subtitle="Total" icon={TrendingUp} trend="up" trendValue="+15%" />
+            </div>
+            <div onClick={() => navigate('/leads')} className="cursor-pointer active:scale-95 transition-transform">
+              <StatCard title="Total Leads" value="0" subtitle="This month" icon={Target} trend="up" trendValue="+0" />
+            </div>
+            <div onClick={() => navigate('/team')} className="cursor-pointer active:scale-95 transition-transform">
+              <StatCard title="Team Members" value="0" subtitle="Active" icon={Users} />
+            </div>
           </div>
 
           {/* Quick Actions */}
@@ -234,10 +242,18 @@ const Index = () => {
     return (
       <>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <StatCard title="My Referrals" value="0" subtitle="Total" icon={Users} trend="up" trendValue="+0" />
-          <StatCard title="Converted" value="0" subtitle="Leads" icon={UserCheck} trend="up" trendValue="+0" />
-          <StatCard title="Commission" value={`₹${totalCommission.toLocaleString()}`} subtitle="Earned" icon={DollarSign} trend="up" trendValue="+₹2,400" />
-          <StatCard title="Active Cards" value={activeCreditCards} subtitle="Products" icon={CreditCard} />
+          <div onClick={() => navigate('/leads')} className="cursor-pointer active:scale-95 transition-transform">
+            <StatCard title="My Referrals" value="0" subtitle="Total" icon={Users} trend="up" trendValue="+0" />
+          </div>
+          <div onClick={() => navigate('/leads')} className="cursor-pointer active:scale-95 transition-transform">
+            <StatCard title="Converted" value="0" subtitle="Leads" icon={UserCheck} trend="up" trendValue="+0" />
+          </div>
+          <div onClick={() => navigate('/payouts')} className="cursor-pointer active:scale-95 transition-transform">
+            <StatCard title="Commission" value={`₹${totalCommission.toLocaleString()}`} subtitle="Earned" icon={DollarSign} trend="up" trendValue="+₹2,400" />
+          </div>
+          <div onClick={() => navigate('/credit-cards')} className="cursor-pointer active:scale-95 transition-transform">
+            <StatCard title="Active Cards" value={activeCreditCards} subtitle="Products" icon={CreditCard} />
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
