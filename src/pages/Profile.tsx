@@ -3,6 +3,8 @@ import AppLayout from '@/components/AppLayout';
 import { useRole } from '@/contexts/RoleContext';
 import { useEffect, useState } from 'react';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+
 const Profile = () => {
   const { displayName, role } = useRole();
   const [profile, setProfile] = useState<any>(null);
@@ -12,7 +14,7 @@ const Profile = () => {
     const fetchProfile = async () => {
       try {
         const user = JSON.parse(localStorage.getItem('user') || '{}');
-        const response = await fetch('http://localhost:8000/api/auth/profile.php', {
+        const response = await fetch(`${API_BASE_URL}/api/auth/profile.php`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ mobile: user.mobile }),
