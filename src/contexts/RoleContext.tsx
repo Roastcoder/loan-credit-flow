@@ -11,6 +11,7 @@ interface RoleContextType {
   role: UserRole;
   setRole: (role: UserRole) => void;
   permissions: { creditCards: Permission; loanDisbursement: Permission };
+  moduleAccess: { creditCards: boolean; loanDisbursement: boolean };
   isLoggedIn: boolean;
   setIsLoggedIn: (v: boolean) => void;
   userAccess: UserAccess;
@@ -62,6 +63,25 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [hasSeenOnboarding, setHasSeenOnboardingState] = useState(() => localStorage.getItem('fincore_onboarding') === 'done');
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
+  const getModuleAccess = (): ModuleAccess => {
+    if (isDemoMode) return { creditCards: true, loanDisbursement: true };
+    const effectiveRole = auth.userRole;
+    if (effectiveRole === 'super_admin' || effectiveRole === 'admin') {
+      return { creditCards: true, loanDisbursement: true };
+    }
+    const stored = localStorage.getItem('user_permissions');
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        return {
+          creditCards: parsed?.access?.creditCards ?? true,
+          loanDisbursement: parsed?.access?.loanDisbursement ?? true,
+        };
+      } catch { }
+    }
+    return { creditCards: true, loanDisbursement: true };
+  };
+
   const handleOnboarding = (v: boolean) => {
     setHasSeenOnboardingState(v);
     if (v) localStorage.setItem('fincore_onboarding', 'done');
@@ -69,12 +89,14 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const effectiveRole = isDemoMode ? demoRole : auth.userRole;
   const effectiveLoggedIn = isLoggedIn || !!auth.user;
+  const moduleAccess = getModuleAccess();
 
   return (
     <RoleContext.Provider value={{
       role: effectiveRole,
       setRole: setDemoRole,
       permissions: rolePermissions[effectiveRole],
+      moduleAccess,
       isLoggedIn: effectiveLoggedIn,
       setIsLoggedIn,
       userAccess, setUserAccess,

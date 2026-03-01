@@ -24,7 +24,7 @@ const monthlyData = [
 ];
 
 const Index = () => {
-  const { role, displayName } = useRole();
+  const { role, displayName, moduleAccess } = useRole();
   const navigate = useNavigate();
   const [creditCards, setCreditCards] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -80,16 +80,20 @@ const Index = () => {
               <p className="text-xs font-semibold text-card-foreground">Manage Leads</p>
               <p className="text-[10px] text-muted-foreground mt-0.5">0 active leads</p>
             </button>
-            <button onClick={() => navigate('/credit-cards')} className="bg-card rounded-xl p-3 border border-border shadow-card hover:border-accent/30 transition-all text-left">
-              <CreditCard className="w-4 h-4 text-info mb-1.5" />
-              <p className="text-xs font-semibold text-card-foreground">Card Products</p>
-              <p className="text-[10px] text-muted-foreground mt-0.5">{activeCreditCards} active</p>
-            </button>
-            <button onClick={() => navigate('/loan-disbursement')} className="bg-card rounded-xl p-3 border border-border shadow-card hover:border-accent/30 transition-all text-left">
-              <FileText className="w-4 h-4 text-warning mb-1.5" />
-              <p className="text-xs font-semibold text-card-foreground">Disbursements</p>
-              <p className="text-[10px] text-muted-foreground mt-0.5">{pendingLoans} pending</p>
-            </button>
+            {moduleAccess.creditCards && (
+              <button onClick={() => navigate('/credit-cards')} className="bg-card rounded-xl p-3 border border-border shadow-card hover:border-accent/30 transition-all text-left">
+                <CreditCard className="w-4 h-4 text-info mb-1.5" />
+                <p className="text-xs font-semibold text-card-foreground">Card Products</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{activeCreditCards} active</p>
+              </button>
+            )}
+            {moduleAccess.loanDisbursement && (
+              <button onClick={() => navigate('/loan-disbursement')} className="bg-card rounded-xl p-3 border border-border shadow-card hover:border-accent/30 transition-all text-left">
+                <FileText className="w-4 h-4 text-warning mb-1.5" />
+                <p className="text-xs font-semibold text-card-foreground">Disbursements</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{pendingLoans} pending</p>
+              </button>
+            )}
             <button onClick={() => navigate('/permissions')} className="bg-card rounded-xl p-3 border border-border shadow-card hover:border-accent/30 transition-all text-left">
               <Users className="w-4 h-4 text-destructive mb-1.5" />
               <p className="text-xs font-semibold text-card-foreground">Permissions</p>
@@ -186,21 +190,25 @@ const Index = () => {
                 <p className="text-[10px] text-muted-foreground mt-0.5">8 members</p>
               </button>
             )}
-            <button onClick={() => navigate('/credit-cards')} className="bg-card rounded-xl p-3 border border-border shadow-card hover:border-accent/30 transition-all text-left">
-              <CreditCard className="w-4 h-4 text-accent mb-1.5" />
-              <p className="text-xs font-semibold text-card-foreground">Apply for Card</p>
-              <p className="text-[10px] text-muted-foreground mt-0.5">{activeCreditCards} cards available</p>
-            </button>
+            {moduleAccess.creditCards && (
+              <button onClick={() => navigate('/credit-cards')} className="bg-card rounded-xl p-3 border border-border shadow-card hover:border-accent/30 transition-all text-left">
+                <CreditCard className="w-4 h-4 text-accent mb-1.5" />
+                <p className="text-xs font-semibold text-card-foreground">Apply for Card</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{activeCreditCards} cards available</p>
+              </button>
+            )}
             <button onClick={() => navigate('/leads')} className="bg-card rounded-xl p-3 border border-border shadow-card hover:border-accent/30 transition-all text-left">
               <Target className="w-4 h-4 text-info mb-1.5" />
               <p className="text-xs font-semibold text-card-foreground">My Leads</p>
               <p className="text-[10px] text-muted-foreground mt-0.5">8 active leads</p>
             </button>
-            <button onClick={() => navigate('/loan-disbursement')} className="bg-card rounded-xl p-3 border border-border shadow-card hover:border-accent/30 transition-all text-left">
-              <FileText className="w-4 h-4 text-warning mb-1.5" />
-              <p className="text-xs font-semibold text-card-foreground">Disbursements</p>
-              <p className="text-[10px] text-muted-foreground mt-0.5">Track status</p>
-            </button>
+            {moduleAccess.loanDisbursement && (
+              <button onClick={() => navigate('/loan-disbursement')} className="bg-card rounded-xl p-3 border border-border shadow-card hover:border-accent/30 transition-all text-left">
+                <FileText className="w-4 h-4 text-warning mb-1.5" />
+                <p className="text-xs font-semibold text-card-foreground">Disbursements</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">Track status</p>
+              </button>
+            )}
           </div>
 
           <div className="bg-card rounded-xl p-3 md:p-4 shadow-card border border-border">
@@ -233,11 +241,13 @@ const Index = () => {
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <button onClick={() => navigate('/credit-cards')} className="bg-card rounded-xl p-3 border border-border shadow-card hover:border-accent/30 transition-all text-left">
-            <Award className="w-4 h-4 text-accent mb-1.5" />
-            <p className="text-xs font-semibold text-card-foreground">Refer a Card</p>
-            <p className="text-[10px] text-muted-foreground mt-0.5">Earn commission</p>
-          </button>
+          {moduleAccess.creditCards && (
+            <button onClick={() => navigate('/credit-cards')} className="bg-card rounded-xl p-3 border border-border shadow-card hover:border-accent/30 transition-all text-left">
+              <Award className="w-4 h-4 text-accent mb-1.5" />
+              <p className="text-xs font-semibold text-card-foreground">Refer a Card</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">Earn commission</p>
+            </button>
+          )}
           <button onClick={() => navigate('/leads')} className="bg-card rounded-xl p-3 border border-border shadow-card hover:border-accent/30 transition-all text-left">
             <Target className="w-4 h-4 text-info mb-1.5" />
             <p className="text-xs font-semibold text-card-foreground">My Leads</p>

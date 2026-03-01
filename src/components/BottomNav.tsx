@@ -4,7 +4,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useRole } from '@/contexts/RoleContext';
 
 const BottomNav = () => {
-  const { role } = useRole();
+  const { role, moduleAccess } = useRole();
   const location = useLocation();
   const navigate = useNavigate();
   const [showActions, setShowActions] = useState(false);
@@ -22,8 +22,8 @@ const BottomNav = () => {
 
   // Menu items (shown in menu popup)
   const menuItems = [
-    { path: '/credit-cards', label: 'Cards', icon: CreditCard, show: true },
-    { path: '/loan-disbursement', label: 'Loans', icon: FileText, show: true },
+    { path: '/credit-cards', label: 'Cards', icon: CreditCard, show: moduleAccess.creditCards },
+    { path: '/loan-disbursement', label: 'Loans', icon: FileText, show: moduleAccess.loanDisbursement },
     { path: '/permissions', label: 'Access', icon: Users, show: role === 'super_admin' || role === 'admin' },
     { path: '/profile', label: 'Profile', icon: UserCircle, show: true },
   ].filter(item => item.show);
@@ -35,7 +35,7 @@ const BottomNav = () => {
     { label: 'Team App', icon: Users, path: '/loan-disbursement/new', state: { preselect: 'other' }, color: 'bg-purple-500/10 text-purple-600' },
   ];
 
-  const showPlusButton = true; // Always show for all users
+  const showPlusButton = moduleAccess.loanDisbursement;
 
   const renderNavItem = (item: { path: string; label: string; icon: React.ElementType }) => {
     const isActive = location.pathname === item.path;
@@ -127,16 +127,18 @@ const BottomNav = () => {
           {mainNavItems.map(renderNavItem)}
 
           {/* Center + Button */}
-          <div className="flex flex-col items-center flex-1">
-            <button
-              onClick={() => setShowActions(!showActions)}
-              className="-mt-5 relative"
-            >
-              <div className={`w-12 h-12 rounded-full gradient-accent flex items-center justify-center shadow-lg border-4 border-card transition-transform duration-200 ${showActions ? 'rotate-45 scale-110' : ''}`}>
-                <Plus className="w-6 h-6 text-accent-foreground" />
-              </div>
-            </button>
-          </div>
+          {showPlusButton && (
+            <div className="flex flex-col items-center flex-1">
+              <button
+                onClick={() => setShowActions(!showActions)}
+                className="-mt-5 relative"
+              >
+                <div className={`w-12 h-12 rounded-full gradient-accent flex items-center justify-center shadow-lg border-4 border-card transition-transform duration-200 ${showActions ? 'rotate-45 scale-110' : ''}`}>
+                  <Plus className="w-6 h-6 text-accent-foreground" />
+                </div>
+              </button>
+            </div>
+          )}
 
           {rightNavItems.map(renderNavItem)}
 

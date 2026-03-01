@@ -40,7 +40,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const AppRoutes = () => {
-  const { isLoggedIn, hasSeenOnboarding } = useRole();
+  const { isLoggedIn, hasSeenOnboarding, moduleAccess } = useRole();
 
   if (!hasSeenOnboarding) {
     return <Routes><Route path="*" element={<Onboarding />} /></Routes>;
@@ -51,13 +51,21 @@ const AppRoutes = () => {
       <Route path="/login" element={isLoggedIn ? <Navigate to="/" replace /> : <Login />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-      <Route path="/credit-cards" element={<ProtectedRoute><CreditCards /></ProtectedRoute>} />
-      <Route path="/credit-cards/:id" element={<ProtectedRoute><CardDetail /></ProtectedRoute>} />
-      <Route path="/loan-disbursement" element={<ProtectedRoute><LoanDisbursementPage /></ProtectedRoute>} />
-      <Route path="/loan-disbursement/new" element={<ProtectedRoute><NewLoanApplication /></ProtectedRoute>} />
-      <Route path="/loan-disbursement/:id" element={<ProtectedRoute><LoanDetail /></ProtectedRoute>} />
-      <Route path="/car-loan" element={<ProtectedRoute><CarLoan /></ProtectedRoute>} />
-      <Route path="/home-loan" element={<ProtectedRoute><HomeLoan /></ProtectedRoute>} />
+      {moduleAccess.creditCards && (
+        <>
+          <Route path="/credit-cards" element={<ProtectedRoute><CreditCards /></ProtectedRoute>} />
+          <Route path="/credit-cards/:id" element={<ProtectedRoute><CardDetail /></ProtectedRoute>} />
+        </>
+      )}
+      {moduleAccess.loanDisbursement && (
+        <>
+          <Route path="/loan-disbursement" element={<ProtectedRoute><LoanDisbursementPage /></ProtectedRoute>} />
+          <Route path="/loan-disbursement/new" element={<ProtectedRoute><NewLoanApplication /></ProtectedRoute>} />
+          <Route path="/loan-disbursement/:id" element={<ProtectedRoute><LoanDetail /></ProtectedRoute>} />
+          <Route path="/car-loan" element={<ProtectedRoute><CarLoan /></ProtectedRoute>} />
+          <Route path="/home-loan" element={<ProtectedRoute><HomeLoan /></ProtectedRoute>} />
+        </>
+      )}
       <Route path="/team-applications" element={<ProtectedRoute><TeamApplications /></ProtectedRoute>} />
       <Route path="/payouts" element={<ProtectedRoute><Payouts /></ProtectedRoute>} />
       <Route path="/leads" element={<ProtectedRoute><LeadsPage /></ProtectedRoute>} />

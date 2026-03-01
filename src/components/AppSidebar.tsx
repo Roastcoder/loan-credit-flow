@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/sidebar';
 
 const AppSidebar = () => {
-  const { role, setRole, signOut, isDemoMode, setIsLoggedIn, displayName } = useRole();
+  const { role, setRole, signOut, isDemoMode, setIsLoggedIn, displayName, moduleAccess } = useRole();
   const location = useLocation();
   const navigate = useNavigate();
   const { state } = useSidebar();
@@ -21,8 +21,8 @@ const AppSidebar = () => {
 
   const navItems = [
     { path: '/', label: 'Dashboard', icon: LayoutDashboard },
-    { path: '/credit-cards', label: 'Credit Cards', icon: CreditCard },
-    { path: '/loan-disbursement', label: 'Loan Disbursement', icon: FileText },
+    ...(moduleAccess.creditCards ? [{ path: '/credit-cards', label: 'Credit Cards', icon: CreditCard }] : []),
+    ...(moduleAccess.loanDisbursement ? [{ path: '/loan-disbursement', label: 'Loan Disbursement', icon: FileText }] : []),
     { path: '/payouts', label: 'Payouts', icon: Wallet },
     { path: '/leads', label: 'Leads', icon: Target },
     ...((role === 'super_admin' || role === 'admin') ? [
@@ -84,45 +84,47 @@ const AppSidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-[10px]">Quick Actions</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="New & Used Car Loan Applications" size="sm">
-                  <NavLink to="/car-loan" className="gap-2 text-xs">
-                    <Car className="w-3.5 h-3.5" />
-                    <span>Car Loan</span>
-                  </NavLink>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="Home Loan and Loan Against Property Applications" size="sm">
-                  <NavLink to="/home-loan" className="gap-2 text-xs">
-                    <Home className="w-3.5 h-3.5" />
-                    <span>Home Loan</span>
-                  </NavLink>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="Personal and Business Loan Applications" size="sm">
-                  <NavLink to="/pl-bl" className="gap-2 text-xs">
-                    <Briefcase className="w-3.5 h-3.5" />
-                    <span>PL / BL</span>
-                  </NavLink>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="Team Loan Applications" size="sm">
-                  <NavLink to="/team-applications" className="gap-2 text-xs">
-                    <Users className="w-3.5 h-3.5" />
-                    <span>Team Applications</span>
-                  </NavLink>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {moduleAccess.loanDisbursement && (
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-[10px]">Quick Actions</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild tooltip="New & Used Car Loan Applications" size="sm">
+                    <NavLink to="/car-loan" className="gap-2 text-xs">
+                      <Car className="w-3.5 h-3.5" />
+                      <span>Car Loan</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild tooltip="Home Loan and Loan Against Property Applications" size="sm">
+                    <NavLink to="/home-loan" className="gap-2 text-xs">
+                      <Home className="w-3.5 h-3.5" />
+                      <span>Home Loan</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild tooltip="Personal and Business Loan Applications" size="sm">
+                    <NavLink to="/pl-bl" className="gap-2 text-xs">
+                      <Briefcase className="w-3.5 h-3.5" />
+                      <span>PL / BL</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild tooltip="Team Loan Applications" size="sm">
+                    <NavLink to="/team-applications" className="gap-2 text-xs">
+                      <Users className="w-3.5 h-3.5" />
+                      <span>Team Applications</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
       <SidebarFooter className="p-2 border-t border-sidebar-border">

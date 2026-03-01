@@ -60,12 +60,16 @@ export const customAuth = {
     console.log('Signin success:', data);
     localStorage.setItem('auth_token', data.token);
     localStorage.setItem('user', JSON.stringify(data.user));
+    if (data.user.permissions) {
+      localStorage.setItem('user_permissions', JSON.stringify(data.user.permissions));
+    }
     return { success: data.success, error: null };
   },
 
   signOut: () => {
     localStorage.removeItem('auth_token');
     localStorage.removeItem('user');
+    localStorage.removeItem('user_permissions');
   },
 
   getUser: async () => {
