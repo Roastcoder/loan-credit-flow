@@ -48,6 +48,7 @@ const CreditCards = () => {
   };
 
   const fetchCards = async () => {
+    setLoading(true);
     try {
       const data = await api.getCreditCards();
       setCards(data.records || []);
@@ -222,6 +223,14 @@ const CreditCards = () => {
         </div>
 
         {/* Card Grid — horizontal card+info layout like reference */}
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent mx-auto"></div>
+              <p className="text-muted-foreground mt-4">Loading credit cards...</p>
+            </div>
+          </div>
+        ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {filteredCards.map(card => {
             const features = CARD_FEATURES[card.id] || ['Premium benefits', 'Reward points', 'Low interest rates'];
@@ -296,6 +305,7 @@ const CreditCards = () => {
             );
           })}
         </div>
+        )}
       </div>
     </AppLayout>
   );
