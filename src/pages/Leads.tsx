@@ -17,6 +17,7 @@ import {
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
 import { formatDistanceToNow } from 'date-fns';
+import { api } from '@/services/api';
 
 interface Lead {
   id: string;
@@ -47,11 +48,27 @@ const statusColors: Record<string, string> = {
 
 const LeadsPage = () => {
   const { role } = useRole();
-  const [leads, setLeads] = useState<Lead[]>(MOCK_LEADS);
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [editStatus, setEditStatus] = useState('');
+
+  useEffect(() => {
+    fetchLeads();
+  }, []);
+
+  const fetchLeads = async () => {
+    try {
+      const data = await api.getLeads();
+      setLeads(data || []);
+    } catch (error) {
+      console.error('Failed to fetch leads:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filtered = leads.filter(l => {
     const matchSearch = l.applicant_name.toLowerCase().includes(search.toLowerCase()) || l.lead_id.toLowerCase().includes(search.toLowerCase());
