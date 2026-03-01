@@ -154,7 +154,7 @@ const Login = () => {
           setLoading(false);
           return;
         }
-        const result = await customAuth.signUp(form.mobile, form.mpin, form.name, form.employeeType, form.channelCode, form.pan, form.dob, form.aadhaar, form.aadhaarName, form.aadhaarAddress, form.aadhaarFatherName, form.aadhaarPhoto, form.email);
+        const result = await customAuth.signUp(form.mobile, form.mpin, form.name, form.employeeType, form.channelCode, form.pan, form.dob, form.aadhaar, form.aadhaarName, form.aadhaarAddress, form.aadhaarFatherName, form.aadhaarPhoto, form.email, form.bankAccount, form.ifsc, form.creditCardsAccess, form.loanDisbursementAccess);
         if (result.error) throw result.error;
         setIsLoggedIn(true);
         localStorage.setItem('hasSeenOnboarding', 'true');
