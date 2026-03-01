@@ -66,10 +66,10 @@ const AppRoutes = () => {
           <Route path="/loan-disbursement/:id" element={<ProtectedRoute><LoanDetail /></ProtectedRoute>} />
           <Route path="/car-loan" element={<ProtectedRoute><CarLoan /></ProtectedRoute>} />
           <Route path="/home-loan" element={<ProtectedRoute><HomeLoan /></ProtectedRoute>} />
-          <Route path="/pl-bl" element={<ProtectedRoute><PLBLForm /></ProtectedRoute>} />
         </>
       )}
       <Route path="/team-applications" element={<ProtectedRoute><TeamApplications /></ProtectedRoute>} />
+      <Route path="/pl-bl" element={<ProtectedRoute><PLBLForm /></ProtectedRoute>} />
       <Route path="/payouts" element={<ProtectedRoute><Payouts /></ProtectedRoute>} />
       <Route path="/team" element={<ProtectedRoute><Team /></ProtectedRoute>} />
       <Route path="/teams" element={<ProtectedRoute><Teams /></ProtectedRoute>} />
