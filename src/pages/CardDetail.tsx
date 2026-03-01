@@ -42,7 +42,7 @@ const CardDetail = () => {
   const fetchCard = async () => {
     try {
       const data = await api.getCreditCards();
-      const foundCard = data.records?.find((c: any) => c.id === id);
+      const foundCard = data.records?.find((c: any) => String(c.id) === String(id));
       setCard(foundCard);
     } catch (error) {
       console.error('Failed to fetch card:', error);
