@@ -260,14 +260,14 @@ const CreditCards = () => {
                               bank: card.bank,
                               category: 'credit_card',
                               commission: String(card.dsa_commission || card.dsaCommission || 0),
-                              redirectUrl: '',
-                              payoutSource: '',
+                              redirectUrl: (card as any).redirect_url || '',
+                              payoutSource: (card as any).payout_source || '',
                               status: card.status === 'active',
                               variantImage: null,
                               cardImage: null,
-                              pincodes: '',
+                              pincodes: (card as any).pincodes || '',
                               highlights: card.reward_points || card.rewardPoints || '',
-                              terms: ''
+                              terms: (card as any).terms || ''
                             });
                             setIsOpen(true);
                           }}
