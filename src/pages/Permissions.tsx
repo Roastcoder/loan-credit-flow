@@ -58,6 +58,18 @@ const PermissionsPage = () => {
     try {
       const data = await api.getUsers();
       setUsers(data.users || []);
+      
+      // Load user access from permissions
+      const access: Record<string, any> = {};
+      data.users?.forEach((u: any) => {
+        if (u.permissions?.access) {
+          access[u.id] = u.permissions.access;
+        } else {
+          access[u.id] = { creditCards: false, loanDisbursement: false };
+        }
+      });
+      setUserAccess(access);
+      
       // Build field permissions for fetched users
       const perms: ManagerFieldPerms = {};
       data.users?.forEach((u: any) => {
@@ -88,11 +100,23 @@ const PermissionsPage = () => {
     );
   }
 
-  const toggleUserAccess = (userId: string, module: 'creditCards' | 'loanDisbursement') => {
+  const toggleUserAccess = async (userId: string, module: 'creditCards' | 'loanDisbursement') => {
+    const newAccess = {
+      ...userAccess[userId],
+      [module]: !userAccess[userId]?.[module]
+    };
     setUserAccess(prev => ({
       ...prev,
-      [userId]: { ...prev[userId], [module]: !prev[userId]?.[module] },
+      [userId]: newAccess,
     }));
+    
+    // Save to database
+    try {
+      await api.updateUserPermissions(userId, { access: newAccess });
+      toast({ title: 'Saved', description: 'User access updated successfully' });
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to save permissions', variant: 'destructive' });
+    }
   };
 
   const toggleRolePerm = (r: UserRole, module: 'creditCards' | 'loanDisbursement', perm: keyof Permission) => {
