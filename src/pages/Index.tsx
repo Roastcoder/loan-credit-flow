@@ -1,11 +1,13 @@
 import { CreditCard, FileText, Users, TrendingUp, Target, DollarSign, UserCheck, Award } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
 import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import AppLayout from '@/components/AppLayout';
 import StatCard from '@/components/StatCard';
 import { useRole } from '@/contexts/RoleContext';
 import { ROLE_LABELS, LOAN_CATEGORY_LABELS } from '@/types';
-import { mockCreditCards, mockDisbursements } from '@/data/mockData';
+import { mockDisbursements } from '@/data/mockData';
+import { api } from '@/services/api';
 
 const CHART_COLORS = [
   'hsl(168, 60%, 42%)', 'hsl(205, 80%, 50%)', 'hsl(38, 92%, 50%)',
@@ -24,20 +26,38 @@ const monthlyData = [
 const Index = () => {
   const { role, displayName } = useRole();
   const navigate = useNavigate();
+  const [creditCards, setCreditCards] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const activeCreditCards = mockCreditCards.filter(c => c.status === 'active').length;
+  useEffect(() => {
+    fetchCards();
+  }, []);
+
+  const fetchCards = async () => {
+    try {
+      const data = await api.getCreditCards();
+      setCreditCards(data.records || []);
+    } catch (error) {
+      console.error('Failed to fetch cards:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const activeCreditCards = creditCards.filter(c => c.status === 'active').length;
   const totalDisbursed = mockDisbursements.filter(d => d.status === 'disbursed').reduce((sum, d) => sum + d.amount, 0);
   const pendingLoans = mockDisbursements.filter(d => d.status === 'pending').length;
-  const totalCommission = mockCreditCards.reduce((sum, c) => sum + c.dsaCommission, 0);
+  const totalCommission = creditCards.reduce((sum, c) => sum + (c.dsa_commission || c.dsaCommission || 0), 0);
 
   const categoryData = Object.entries(LOAN_CATEGORY_LABELS).map(([key, label]) => {
     const count = mockDisbursements.filter(d => d.category === key).length;
     return { name: label, value: count || 1 };
   });
 
-  const cardPerformance = mockCreditCards.map(c => ({
+  const cardPerformance = creditCards.map(c => ({
     name: c.name.length > 12 ? c.name.slice(0, 12) + '…' : c.name,
-    commission: c.dsaCommission, annualFee: c.annualFee,
+    commission: c.dsa_commission || c.dsaCommission || 0,
+    annualFee: c.annual_fee || c.annualFee || 0,
   }));
 
   // Role-specific dashboard content
@@ -244,13 +264,13 @@ const Index = () => {
           <div className="bg-card rounded-xl p-3 md:p-4 shadow-card border border-border">
             <h2 className="text-sm md:text-base font-display font-semibold text-card-foreground mb-3">Top Cards by Commission</h2>
             <div className="space-y-2">
-              {mockCreditCards.filter(c => c.status === 'active').sort((a, b) => b.dsaCommission - a.dsaCommission).map(c => (
+              {creditCards.filter(c => c.status === 'active').sort((a, b) => (b.dsa_commission || b.dsaCommission || 0) - (a.dsa_commission || a.dsaCommission || 0)).map(c => (
                 <div key={c.id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
                   <div className="min-w-0 flex-1">
                     <p className="font-medium text-xs text-card-foreground truncate">{c.name}</p>
                     <p className="text-[10px] text-muted-foreground">{c.bank}</p>
                   </div>
-                  <p className="font-bold text-accent text-xs">₹{c.dsaCommission.toLocaleString()}</p>
+                  <p className="font-bold text-accent text-xs">₹{(c.dsa_commission || c.dsaCommission || 0).toLocaleString()}</p>
                 </div>
               ))}
             </div>
