@@ -313,7 +313,7 @@ const NewLoanApplication = () => {
                   </div>
                   <div>
                     <Label className="text-xs font-semibold">Manufacturing Date</Label>
-                    <Input type="date" value={form.manufacturingDate} onChange={e => update('manufacturingDate', e.target.value)} className="mt-1.5" />
+                    <Input type="month" value={form.manufacturingDate} onChange={e => update('manufacturingDate', e.target.value)} className="mt-1.5" />
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
