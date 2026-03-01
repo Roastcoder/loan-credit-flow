@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserRole, Permission } from '@/types';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -62,6 +62,7 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [rolePermissions, setRolePermissions] = useState<RolePermissions>(defaultRolePermissions);
   const [hasSeenOnboarding, setHasSeenOnboardingState] = useState(() => localStorage.getItem('fincore_onboarding') === 'done');
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [moduleAccess, setModuleAccess] = useState<ModuleAccess>({ creditCards: true, loanDisbursement: true });
 
   const getModuleAccess = (): ModuleAccess => {
     if (isDemoMode) return { creditCards: true, loanDisbursement: true };
@@ -82,6 +83,11 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { creditCards: true, loanDisbursement: true };
   };
 
+  // Update moduleAccess whenever auth or localStorage changes
+  useEffect(() => {
+    setModuleAccess(getModuleAccess());
+  }, [auth.userRole, isDemoMode]);
+
   const handleOnboarding = (v: boolean) => {
     setHasSeenOnboardingState(v);
     if (v) localStorage.setItem('fincore_onboarding', 'done');
@@ -89,7 +95,6 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const effectiveRole = isDemoMode ? demoRole : auth.userRole;
   const effectiveLoggedIn = isLoggedIn || !!auth.user;
-  const moduleAccess = getModuleAccess();
 
   return (
     <RoleContext.Provider value={{
