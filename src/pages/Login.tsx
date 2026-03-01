@@ -340,32 +340,66 @@ const Login = () => {
                       </div>
                       <div className="space-y-3">
                         <Label>Module Access</Label>
-                        <div className="flex items-center space-x-2 bg-muted/30 p-3 rounded-lg">
-                          <input
-                            type="checkbox"
-                            id="creditCards"
-                            checked={form.creditCardsAccess}
-                            onChange={e => setForm({ ...form, creditCardsAccess: e.target.checked })}
-                            className="w-4 h-4 rounded border-gray-300"
-                          />
-                          <label htmlFor="creditCards" className="text-sm font-medium cursor-pointer flex items-center gap-2">
-                            <CreditCard className="w-4 h-4 text-accent" />
-                            Credit Cards
-                          </label>
-                        </div>
-                        <div className="flex items-center space-x-2 bg-muted/30 p-3 rounded-lg">
-                          <input
-                            type="checkbox"
-                            id="loanDisbursement"
-                            checked={form.loanDisbursementAccess}
-                            onChange={e => setForm({ ...form, loanDisbursementAccess: e.target.checked })}
-                            className="w-4 h-4 rounded border-gray-300"
-                          />
-                          <label htmlFor="loanDisbursement" className="text-sm font-medium cursor-pointer flex items-center gap-2">
-                            <FileText className="w-4 h-4 text-accent" />
-                            Loan Disbursement
-                          </label>
-                        </div>
+                        {form.creditCardsAccess && (
+                          <div className="flex items-center space-x-2 bg-accent/10 p-3 rounded-lg border border-accent/30">
+                            <input
+                              type="checkbox"
+                              id="creditCards"
+                              checked={form.creditCardsAccess}
+                              onChange={e => setForm({ ...form, creditCardsAccess: e.target.checked })}
+                              className="w-4 h-4 rounded border-gray-300"
+                            />
+                            <label htmlFor="creditCards" className="text-sm font-medium cursor-pointer flex items-center gap-2">
+                              <CreditCard className="w-4 h-4 text-accent" />
+                              Credit Cards
+                            </label>
+                          </div>
+                        )}
+                        {!form.creditCardsAccess && (
+                          <div className="flex items-center space-x-2 bg-muted/30 p-3 rounded-lg">
+                            <input
+                              type="checkbox"
+                              id="creditCards"
+                              checked={form.creditCardsAccess}
+                              onChange={e => setForm({ ...form, creditCardsAccess: e.target.checked })}
+                              className="w-4 h-4 rounded border-gray-300"
+                            />
+                            <label htmlFor="creditCards" className="text-sm font-medium cursor-pointer flex items-center gap-2">
+                              <CreditCard className="w-4 h-4 text-muted-foreground" />
+                              Credit Cards
+                            </label>
+                          </div>
+                        )}
+                        {form.loanDisbursementAccess && (
+                          <div className="flex items-center space-x-2 bg-accent/10 p-3 rounded-lg border border-accent/30">
+                            <input
+                              type="checkbox"
+                              id="loanDisbursement"
+                              checked={form.loanDisbursementAccess}
+                              onChange={e => setForm({ ...form, loanDisbursementAccess: e.target.checked })}
+                              className="w-4 h-4 rounded border-gray-300"
+                            />
+                            <label htmlFor="loanDisbursement" className="text-sm font-medium cursor-pointer flex items-center gap-2">
+                              <FileText className="w-4 h-4 text-accent" />
+                              Loan Disbursement
+                            </label>
+                          </div>
+                        )}
+                        {!form.loanDisbursementAccess && (
+                          <div className="flex items-center space-x-2 bg-muted/30 p-3 rounded-lg">
+                            <input
+                              type="checkbox"
+                              id="loanDisbursement"
+                              checked={form.loanDisbursementAccess}
+                              onChange={e => setForm({ ...form, loanDisbursementAccess: e.target.checked })}
+                              className="w-4 h-4 rounded border-gray-300"
+                            />
+                            <label htmlFor="loanDisbursement" className="text-sm font-medium cursor-pointer flex items-center gap-2">
+                              <FileText className="w-4 h-4 text-muted-foreground" />
+                              Loan Disbursement
+                            </label>
+                          </div>
+                        )}
                       </div>
                       <Button type="button" onClick={handleSignupNext} disabled={loading} className="w-full gradient-accent text-accent-foreground border-0 h-12 text-sm font-semibold">
                         {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Generate Code'}
