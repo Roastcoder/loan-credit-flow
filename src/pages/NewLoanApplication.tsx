@@ -98,6 +98,13 @@ const NewLoanApplication = () => {
       const result = await rcService.verifyRC(form.rcNumber);
       if (result.success && result.data) {
         const d = result.data;
+        
+        // Convert YYYY-MM format to YYYY-MM-01 for date input
+        let mfgDate = '';
+        if (d.manufacturing_date_formatted) {
+          mfgDate = d.manufacturing_date_formatted + '-01';
+        }
+        
         setForm(prev => ({
           ...prev,
           ownerName: d.owner_name || prev.ownerName,
@@ -108,7 +115,7 @@ const NewLoanApplication = () => {
           engineNumber: d.vehicle_engine_number || prev.engineNumber,
           financier: d.financer || prev.financier,
           financedStatus: d.financed ? 'Financed' : 'Not Financed',
-          manufacturingDate: d.manufacturing_date_formatted || prev.manufacturingDate,
+          manufacturingDate: mfgDate || prev.manufacturingDate,
           insuranceCompany: d.insurance_company || prev.insuranceCompany,
           insuranceValidUpto: d.insurance_upto || prev.insuranceValidUpto,
           puccValidUpto: d.pucc_upto || prev.puccValidUpto,
