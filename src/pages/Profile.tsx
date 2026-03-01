@@ -6,7 +6,6 @@ import { useEffect, useState } from 'react';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
 
 const Profile = () => {
-  const { displayName, role } = useRole();
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -43,12 +42,12 @@ const Profile = () => {
   }
 
   const userProfile = {
-    name: profile?.name || displayName || 'User',
+    name: profile?.name || 'User',
     email: profile?.email || 'N/A',
     phone: profile?.mobile || 'N/A',
     dob: profile?.dob || 'N/A',
-    address: profile?.aadhaar_address || 'Not provided',
-    fatherName: profile?.aadhaar_father_name || 'Not provided',
+    address: profile?.aadhaar_address || 'N/A',
+    fatherName: profile?.aadhaar_father_name || 'N/A',
     aadhaarName: profile?.aadhaar_name || 'N/A',
     joinDate: profile?.created_at ? new Date(profile.created_at).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A',
     aadhaar: profile?.aadhaar || 'N/A',
@@ -57,7 +56,7 @@ const Profile = () => {
     employeeType: profile?.employee_type || 'N/A',
     accountNumber: profile?.bank_account || 'N/A',
     ifsc: profile?.ifsc || 'N/A',
-    profilePic: profile?.aadhaar_photo || null,
+    profilePic: profile?.aadhaar_photo ? `data:image/jpeg;base64,${profile.aadhaar_photo}` : null,
   };
 
   return (

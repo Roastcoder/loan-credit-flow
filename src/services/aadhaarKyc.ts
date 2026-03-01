@@ -40,12 +40,4 @@ export const aadhaarKycService = {
       aadhaar_number: aadhaarNumber,
     };
   },
-
-  getDetails: async (aadhaarNumber: string, requestId: string) => {
-    return { 
-      name: 'DEMO USER',
-      address: 'Demo Address, City, State',
-      father_name: 'DEMO FATHER',
-    };
-  },
 };
