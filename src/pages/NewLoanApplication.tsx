@@ -88,6 +88,15 @@ const NewLoanApplication = () => {
 
   const update = (key: string, value: string) => setForm(prev => ({ ...prev, [key]: value }));
 
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    setForm(prev => ({
+      ...prev,
+      channelCode: user.channel_code || '',
+      dealingPersonName: user.name || '',
+    }));
+  }, []);
+
   const handleVerifyRC = async () => {
     if (!form.rcNumber) {
       toast({ title: 'Error', description: 'Please enter RC number', variant: 'destructive' });
@@ -210,13 +219,13 @@ const NewLoanApplication = () => {
                 </div>
                 <div>
                   <Label className="text-xs font-semibold">Channel Code <span className="text-destructive">*</span></Label>
-                  <Input value={form.channelCode} onChange={e => update('channelCode', e.target.value)} placeholder="Enter channel code" className="mt-1.5" />
+                  <Input value={form.channelCode} className="mt-1.5 bg-muted" disabled readOnly />
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label className="text-xs font-semibold">Dealing Person Name <span className="text-destructive">*</span></Label>
-                  <Input value={form.dealingPersonName} onChange={e => update('dealingPersonName', e.target.value)} placeholder="Enter dealing person name" className="mt-1.5" />
+                  <Input value={form.dealingPersonName} className="mt-1.5 bg-muted" disabled readOnly />
                 </div>
                 <div>
                   <Label className="text-xs font-semibold">Customer Name <span className="text-destructive">*</span></Label>
