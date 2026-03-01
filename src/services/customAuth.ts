@@ -1,7 +1,7 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
 
 export const customAuth = {
-  signUp: async (mobile: string, mpin: string, name: string, employeeType: string, channelCode: string, pan: string, dob: string, aadhaar: string, aadhaarName: string, aadhaarAddress: string, aadhaarFatherName: string, email: string) => {
+  signUp: async (mobile: string, mpin: string, name: string, employeeType: string, channelCode: string, pan: string, dob: string, aadhaar: string, aadhaarName: string, aadhaarAddress: string, aadhaarFatherName: string, aadhaarPhoto: string, email: string) => {
     const response = await fetch(`${API_BASE_URL}/api/auth/signup.php`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -17,6 +17,7 @@ export const customAuth = {
         aadhaar_name: aadhaarName,
         aadhaar_address: aadhaarAddress,
         aadhaar_father_name: aadhaarFatherName,
+        aadhaar_photo: aadhaarPhoto,
         email,
       }),
     });

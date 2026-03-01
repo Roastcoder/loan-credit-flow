@@ -36,6 +36,7 @@ export const aadhaarKycService = {
       name: details.name,
       address: fullAddress,
       father_name: details.careof,
+      photo: details.photo,
       aadhaar_number: aadhaarNumber,
     };
   },

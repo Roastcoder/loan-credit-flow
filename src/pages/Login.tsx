@@ -26,7 +26,7 @@ const Login = () => {
   const { setRole, setIsLoggedIn, setIsDemoMode, signUp, signIn, resetPassword } = useRole();
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({ name: '', mobile: '', email: '', mpin: '', confirmPassword: '', pan: '', otp: '', aadhaar: '', aadhaarOtp: '', aadhaarRequestId: '', aadhaarName: '', aadhaarAddress: '', aadhaarFatherName: '', bankAccount: '', ifsc: '', teamNumber: '', employeeType: '', channelCode: '', dob: '', loginIdentifier: '' });
+  const [form, setForm] = useState({ name: '', mobile: '', email: '', mpin: '', confirmPassword: '', pan: '', otp: '', aadhaar: '', aadhaarOtp: '', aadhaarRequestId: '', aadhaarName: '', aadhaarAddress: '', aadhaarFatherName: '', aadhaarPhoto: '', bankAccount: '', ifsc: '', teamNumber: '', employeeType: '', channelCode: '', dob: '', loginIdentifier: '' });
   const [aadhaarOtpSent, setAadhaarOtpSent] = useState(false);
   const [generatedOtp, setGeneratedOtp] = useState('');
   const [otpTimer, setOtpTimer] = useState(0);
@@ -119,13 +119,13 @@ const Login = () => {
             return;
           }
           try {
-            await aadhaarKycService.verifyOtp(form.aadhaar, form.aadhaarOtp, form.aadhaarRequestId);
-            const aadhaarData = await aadhaarKycService.getDetails(form.aadhaar, form.aadhaarRequestId);
+            const verifyResult = await aadhaarKycService.verifyOtp(form.aadhaar, form.aadhaarOtp, form.aadhaarRequestId);
             setForm({ 
               ...form, 
-              aadhaarName: aadhaarData.name || form.name,
-              aadhaarAddress: aadhaarData.address || '',
-              aadhaarFatherName: aadhaarData.father_name || '',
+              aadhaarName: verifyResult.name || form.name,
+              aadhaarAddress: verifyResult.address || '',
+              aadhaarFatherName: verifyResult.father_name || '',
+              aadhaarPhoto: verifyResult.photo || '',
             });
             toast({ title: 'Aadhaar Verified', description: 'Aadhaar verified successfully.' });
             setSignupStep('bank');
@@ -154,7 +154,7 @@ const Login = () => {
           setLoading(false);
           return;
         }
-        const result = await customAuth.signUp(form.mobile, form.mpin, form.name, form.employeeType, form.channelCode, form.pan, form.dob, form.aadhaar, form.aadhaarName, form.aadhaarAddress, form.aadhaarFatherName, form.email);
+        const result = await customAuth.signUp(form.mobile, form.mpin, form.name, form.employeeType, form.channelCode, form.pan, form.dob, form.aadhaar, form.aadhaarName, form.aadhaarAddress, form.aadhaarFatherName, form.aadhaarPhoto, form.email);
         if (result.error) throw result.error;
         setIsLoggedIn(true);
         localStorage.setItem('hasSeenOnboarding', 'true');
