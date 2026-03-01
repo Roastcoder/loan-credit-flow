@@ -28,12 +28,14 @@ export const aadhaarKycService = {
     if (!response.ok) throw new Error('Failed to verify OTP');
     const data = await response.json();
     
-    const details = data.data?.result || data.data || {};
+    const details = data.data || {};
+    const fullAddress = `${details.house || ''} ${details.street || ''} ${details.locality || ''}, ${details.subDistrict || ''}, ${details.district || ''}, ${details.state || ''} - ${details.pincode || ''}`.trim();
+    
     return {
       success: data.success,
-      name: details.name || details.fullName,
-      address: details.address || details.fullAddress,
-      father_name: details.fatherName || details.father_name,
+      name: details.name,
+      address: fullAddress,
+      father_name: details.careof,
       aadhaar_number: aadhaarNumber,
     };
   },
