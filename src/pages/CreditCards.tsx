@@ -1,9 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Search, Check, CreditCard as CreditCardIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '@/components/AppLayout';
 import { useRole } from '@/contexts/RoleContext';
-import { mockCreditCards } from '@/data/mockData';
 import { CreditCardProduct } from '@/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -12,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { api } from '@/services/api';
 
 const CARD_IMAGES: Record<string, string> = {};
 
@@ -20,7 +20,8 @@ const CARD_FEATURES: Record<string, string[]> = {};
 const CreditCards = () => {
   const { role, permissions } = useRole();
   const navigate = useNavigate();
-  const [cards, setCards] = useState<CreditCardProduct[]>(mockCreditCards);
+  const [cards, setCards] = useState<CreditCardProduct[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [isOpen, setIsOpen] = useState(false);
   const [newCard, setNewCard] = useState({
@@ -29,23 +30,44 @@ const CreditCards = () => {
     pincodes: '', highlights: '', terms: ''
   });
 
+  useEffect(() => {
+    fetchCards();
+  }, []);
+
+  const fetchCards = async () => {
+    try {
+      const data = await api.getCreditCards();
+      setCards(data.records || []);
+    } catch (error) {
+      console.error('Failed to fetch cards:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const filteredCards = cards.filter(c =>
     c.name.toLowerCase().includes(search.toLowerCase()) || c.bank.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleAddCard = () => {
-    const card: CreditCardProduct = {
-      id: String(cards.length + 1), name: newCard.name, bank: newCard.bank, type: newCard.category,
-      annualFee: 0, joiningFee: 0, dsaCommission: Number(newCard.commission),
-      rewardPoints: newCard.highlights, status: newCard.status ? 'active' : 'inactive',
-      createdAt: new Date().toISOString().split('T')[0],
-    };
-    setCards([...cards, card]);
-    setNewCard({
-      name: '', bank: '', category: 'credit_card', commission: '', redirectUrl: '', payoutSource: '',
-      status: true, variantImage: null, cardImage: null, pincodes: '', highlights: '', terms: ''
-    });
-    setIsOpen(false);
+  const handleAddCard = async () => {
+    try {
+      await api.createCreditCard({
+        name: newCard.name,
+        bank: newCard.bank,
+        type: newCard.category,
+        dsa_commission: Number(newCard.commission),
+        reward_points: newCard.highlights,
+        status: newCard.status ? 'active' : 'inactive',
+      });
+      await fetchCards();
+      setNewCard({
+        name: '', bank: '', category: 'credit_card', commission: '', redirectUrl: '', payoutSource: '',
+        status: true, variantImage: null, cardImage: null, pincodes: '', highlights: '', terms: ''
+      });
+      setIsOpen(false);
+    } catch (error) {
+      console.error('Failed to create card:', error);
+    }
   };
 
   return (
