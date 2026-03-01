@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Car, Home, Briefcase, Users, FileText, Loader2 } from 'lucide-react';
 import AppLayout from '@/components/AppLayout';
@@ -46,6 +46,7 @@ const NewLoanApplication = () => {
   const [selectedType, setSelectedType] = useState<LoanCategory | null>(preselect);
   const [loading, setLoading] = useState(false);
   const [verifyingRC, setVerifyingRC] = useState(false);
+  const [rcVerifyCount, setRcVerifyCount] = useState(0);
 
   const [form, setForm] = useState({
     // Customer Details
@@ -103,8 +104,9 @@ const NewLoanApplication = () => {
       return;
     }
     setVerifyingRC(true);
+    const forceRefresh = rcVerifyCount > 0;
     try {
-      const result = await rcService.verifyRC(form.rcNumber);
+      const result = await rcService.verifyRC(form.rcNumber, forceRefresh);
       if (result.success && result.data) {
         const d = result.data;
         
@@ -129,7 +131,10 @@ const NewLoanApplication = () => {
           insuranceValidUpto: d.insurance_upto || prev.insuranceValidUpto,
           puccValidUpto: d.pucc_upto || prev.puccValidUpto,
         }));
-        toast({ title: 'RC Verified!', description: `Vehicle details fetched for ${d.owner_name}` });
+        
+        const source = result.fromCache ? '📦 Database' : '🌐 Live API';
+        toast({ title: 'RC Verified!', description: `${source} - Vehicle details fetched for ${d.owner_name}` });
+        setRcVerifyCount(prev => prev + 1);
       }
     } catch (error: any) {
       toast({ title: 'Verification Failed', description: error.message, variant: 'destructive' });

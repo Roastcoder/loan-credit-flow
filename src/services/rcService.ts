@@ -1,7 +1,7 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
 
 export const rcService = {
-  verifyRC: async (rcNumber: string) => {
+  verifyRC: async (rcNumber: string, forceRefresh: boolean = false) => {
     try {
       const token = localStorage.getItem('auth_token');
       const response = await fetch(`${API_BASE_URL}/api/rc/verify.php`, {
@@ -10,7 +10,7 @@ export const rcService = {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ rc_number: rcNumber }),
+        body: JSON.stringify({ rc_number: rcNumber, force_refresh: forceRefresh }),
       });
 
       const data = await response.json();
@@ -19,6 +19,7 @@ export const rcService = {
         return {
           success: true,
           data: data.data,
+          fromCache: data.from_cache || false,
         };
       } else {
         throw new Error(data.message || 'RC verification failed');
