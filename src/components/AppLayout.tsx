@@ -4,12 +4,35 @@ import Footer from './Footer';
 import NotificationBell from './NotificationBell';
 import { useRole } from '@/contexts/RoleContext';
 import { useNavigate } from 'react-router-dom';
-import { LogOut } from 'lucide-react';
+import { LogOut, UserCircle } from 'lucide-react';
 import { SidebarProvider, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar';
+import { useEffect, useState } from 'react';
 
 const AppLayout = ({ children }: { children: React.ReactNode }) => {
   const { signOut, isDemoMode, setIsLoggedIn, displayName } = useRole();
   const navigate = useNavigate();
+  const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+        const response = await fetch(`${API_BASE_URL}/api/auth/profile.php`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mobile: user.mobile }),
+        });
+        const data = await response.json();
+        if (data.success && data.user?.aadhaar_photo) {
+          setProfilePhoto(`data:image/jpeg;base64,${data.user.aadhaar_photo}`);
+        }
+      } catch (error) {
+        console.error('Failed to fetch profile photo:', error);
+      }
+    };
+    fetchProfile();
+  }, []);
 
   const handleLogout = async () => {
     localStorage.removeItem('auth_token');
@@ -50,12 +73,16 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
           <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
           <div className="flex items-center gap-4">
             <NotificationBell />
-            <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-full gradient-accent flex items-center justify-center text-[10px] font-bold text-accent-foreground">
-                {(displayName || 'U').charAt(0).toUpperCase()}
-              </div>
+            <button onClick={() => navigate('/profile')} className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
+              {profilePhoto ? (
+                <img src={profilePhoto} alt="Profile" className="w-8 h-8 rounded-full object-cover" />
+              ) : (
+                <div className="w-8 h-8 rounded-full gradient-accent flex items-center justify-center">
+                  <UserCircle className="w-5 h-5 text-accent-foreground" />
+                </div>
+              )}
               <span className="text-sm font-medium text-foreground">{displayName}</span>
-            </div>
+            </button>
           </div>
         </div>
 
