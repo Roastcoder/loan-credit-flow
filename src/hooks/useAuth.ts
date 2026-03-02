@@ -25,25 +25,7 @@ export const useAuth = () => {
       const userData = JSON.parse(storedUser);
       setUser(userData);
       setDisplayName(userData.name || '');
-      
-      // Fetch full profile to get employee_type
-      const fetchProfile = async () => {
-        try {
-          const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
-          const response = await fetch(`${API_BASE_URL}/api/auth/profile.php`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ mobile: userData.mobile }),
-          });
-          const data = await response.json();
-          if (data.success && data.user) {
-            setUserRole(data.user.role || mapEmployeeTypeToRole(data.user.employee_type));
-          }
-        } catch (error) {
-          console.error('Failed to fetch profile:', error);
-        }
-      };
-      fetchProfile();
+      setUserRole(userData.role || 'employee');
     }
   }, []);
 
