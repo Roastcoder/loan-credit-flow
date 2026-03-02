@@ -333,8 +333,8 @@ const Login = () => {
                           required
                         >
                           <option value="">Select Type</option>
+                          <option value="EMPLOYEE">Employee</option>
                           <option value="DSA">DSA (Direct Selling Agent)</option>
-                          <option value="DST">DST (Finonest Employee)</option>
                         </select>
                         <p className="text-xs text-muted-foreground mt-1">Channel code will be auto-generated</p>
                       </div>

@@ -3,9 +3,12 @@ import type { UserRole } from '@/types';
 
 const mapEmployeeTypeToRole = (employeeType: string): UserRole => {
   const mapping: Record<string, UserRole> = {
-    'ADMIN': 'super_admin',
+    'SUPER_ADMIN': 'super_admin',
+    'ADMIN': 'admin',
+    'MANAGER': 'manager',
     'DSA': 'dsa_partner',
-    'DST': 'employee',
+    'EMPLOYEE': 'employee',
+    'TL': 'team_leader',
   };
   return mapping[employeeType] || 'employee';
 };
@@ -34,7 +37,7 @@ export const useAuth = () => {
           });
           const data = await response.json();
           if (data.success && data.user) {
-            setUserRole(mapEmployeeTypeToRole(data.user.employee_type));
+            setUserRole(data.user.role || mapEmployeeTypeToRole(data.user.employee_type));
           }
         } catch (error) {
           console.error('Failed to fetch profile:', error);

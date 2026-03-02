@@ -389,9 +389,10 @@ const PermissionsPage = () => {
                                 <SelectContent className="bg-popover border border-border z-50">
                                   <SelectItem value="employee">Employee</SelectItem>
                                   <SelectItem value="dsa_partner">DSA</SelectItem>
-                                  <SelectItem value="team_leader">DST</SelectItem>
+                                  <SelectItem value="team_leader">Team Leader</SelectItem>
                                   <SelectItem value="manager">Manager</SelectItem>
                                   <SelectItem value="admin">Admin</SelectItem>
+                                  <SelectItem value="super_admin">Super Admin</SelectItem>
                                 </SelectContent>
                               </Select>
                             </TableCell>
