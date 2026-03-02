@@ -291,114 +291,66 @@ const NewLoanApplication = () => {
 
           {/* Section: Vehicle Details (Car Loan only) */}
           {isCarLoan && (
-            <div className="bg-card rounded-xl border border-border shadow-card overflow-hidden">
-              <div className="p-4 border-b border-border bg-muted/30 flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-warning" />
-                <h2 className="font-display font-semibold text-card-foreground">Vehicle Details</h2>
+            <div className="bg-card rounded-xl p-6 shadow-card border border-border space-y-3">
+              <input
+                type="text"
+                placeholder="RC Number (e.g., DL01AB1234)"
+                value={form.rcNumber}
+                onChange={e => update('rcNumber', e.target.value.toUpperCase())}
+                className="w-full px-4 py-2.5 bg-background border-b border-border focus:border-accent outline-none transition-colors text-sm font-medium"
+              />
+              {(form.ownerName || form.makerDescription) && (
+                <div className="px-4 py-2 bg-accent/5 rounded text-xs text-muted-foreground">
+                  {form.makerDescription} {form.makerModel} ({form.manufacturingDate}) • {form.ownerName} • {form.fuelType} • Insurance: {form.insuranceCompany} (Valid: {form.insuranceValidUpto})
+                </div>
+              )}
+              <input
+                type="text"
+                placeholder="Engine Number"
+                value={form.engineNumber}
+                onChange={e => update('engineNumber', e.target.value)}
+                className="w-full px-4 py-2.5 bg-background border-b border-border focus:border-accent outline-none transition-colors text-sm"
+              />
+              <input
+                type="text"
+                placeholder="Chassis Number"
+                value={form.chassisNumber}
+                onChange={e => update('chassisNumber', e.target.value)}
+                className="w-full px-4 py-2.5 bg-background border-b border-border focus:border-accent outline-none transition-colors text-sm"
+              />
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Challan Status"
+                  value={form.challanStatus}
+                  readOnly
+                  className="flex-1 px-4 py-2.5 bg-muted border-b border-border outline-none text-sm"
+                />
+                <Button type="button" onClick={handleFetchChallan} disabled={fetchingChallan} variant="outline" size="sm">
+                  {fetchingChallan ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Fetch'}
+                </Button>
               </div>
-              <div className="p-4 md:p-6 space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-xs font-semibold">RC Number <span className="text-destructive">*</span></Label>
-                    <div className="flex gap-2 mt-1.5">
-                      <Input value={form.rcNumber} onChange={e => update('rcNumber', e.target.value.toUpperCase())} placeholder="Enter RC number" />
-                      <Button type="button" onClick={handleVerifyRC} disabled={verifyingRC} variant="outline" className="whitespace-nowrap">
-                        {verifyingRC ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Verify'}
-                      </Button>
-                    </div>
-                  </div>
-                  <div>
-                    <Label className="text-xs font-semibold">Engine Number <span className="text-destructive">*</span></Label>
-                    <Input value={form.engineNumber} onChange={e => update('engineNumber', e.target.value)} placeholder="Enter engine number" className="mt-1.5" />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-xs font-semibold">Chassis Number <span className="text-destructive">*</span></Label>
-                    <Input value={form.chassisNumber} onChange={e => update('chassisNumber', e.target.value)} placeholder="Enter chassis number" className="mt-1.5" />
-                  </div>
-                  <div>
-                    <Label className="text-xs font-semibold">Owner Name</Label>
-                    <Input value={form.ownerName} onChange={e => update('ownerName', e.target.value)} placeholder="Owner name" className="mt-1.5" />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-xs font-semibold">Maker Description</Label>
-                    <Input value={form.makerDescription} onChange={e => update('makerDescription', e.target.value)} placeholder="Maker description" className="mt-1.5" />
-                  </div>
-                  <div>
-                    <Label className="text-xs font-semibold">Maker Model</Label>
-                    <Input value={form.makerModel} onChange={e => update('makerModel', e.target.value)} placeholder="Maker model" className="mt-1.5" />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-xs font-semibold">Fuel Type</Label>
-                    <Input value={form.fuelType} onChange={e => update('fuelType', e.target.value)} placeholder="Fuel type" className="mt-1.5" />
-                  </div>
-                  <div>
-                    <Label className="text-xs font-semibold">Insurance Company</Label>
-                    <Input value={form.insuranceCompany} onChange={e => update('insuranceCompany', e.target.value)} placeholder="Insurance company" className="mt-1.5" />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-xs font-semibold">Insurance Valid Upto</Label>
-                    <Input type="date" value={form.insuranceValidUpto} onChange={e => update('insuranceValidUpto', e.target.value)} className="mt-1.5" />
-                  </div>
-                  <div>
-                    <Label className="text-xs font-semibold">Manufacturing Date</Label>
-                    <Input type="month" value={form.manufacturingDate} onChange={e => update('manufacturingDate', e.target.value)} className="mt-1.5" />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-xs font-semibold">PUCC Valid Upto</Label>
-                    <Input type="date" value={form.puccValidUpto} onChange={e => update('puccValidUpto', e.target.value)} className="mt-1.5" />
-                  </div>
-                  <div>
-                    <Label className="text-xs font-semibold">Financier</Label>
-                    <Input value={form.financier} onChange={e => update('financier', e.target.value)} placeholder="Financier name" className="mt-1.5" />
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-xs font-semibold">Financed Status</Label>
-                    <Input value={form.financedStatus} onChange={e => update('financedStatus', e.target.value)} placeholder="Financed status" className="mt-1.5" />
-                  </div>
-                  <div>
-                    <Label className="text-xs font-semibold">Challan Status</Label>
-                    <div className="flex gap-2 mt-1.5">
-                      <Input value={form.challanStatus} placeholder="Challan status" className="bg-muted" readOnly />
-                      <Button type="button" onClick={handleFetchChallan} disabled={fetchingChallan} variant="outline" className="whitespace-nowrap">
-                        {fetchingChallan ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Fetch'}
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-                {challanData && challanData.challan_details?.challans && challanData.challan_details.challans.length > 0 && (
-                  <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3">
-                    <p className="text-xs font-semibold text-destructive mb-2">Challan Details:</p>
-                    <div className="space-y-2 max-h-40 overflow-y-auto">
-                      {challanData.challan_details.challans.map((challan: any, idx: number) => (
-                        <div key={idx} className="text-xs bg-background/50 rounded p-2">
-                          <div className="grid grid-cols-2 gap-1">
-                            <span className="text-muted-foreground">Challan No:</span>
-                            <span className="font-medium">{challan.challan_number || 'N/A'}</span>
-                            <span className="text-muted-foreground">Amount:</span>
-                            <span className="font-medium">₹{challan.amount || 'N/A'}</span>
-                            <span className="text-muted-foreground">Date:</span>
-                            <span className="font-medium">{challan.challan_date || 'N/A'}</span>
-                            <span className="text-muted-foreground">Offense:</span>
-                            <span className="font-medium">{challan.offense_details || 'N/A'}</span>
-                          </div>
+              {challanData && challanData.challan_details?.challans && challanData.challan_details.challans.length > 0 && (
+                <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3">
+                  <p className="text-xs font-semibold text-destructive mb-2">Challan Details:</p>
+                  <div className="space-y-2 max-h-40 overflow-y-auto">
+                    {challanData.challan_details.challans.map((challan: any, idx: number) => (
+                      <div key={idx} className="text-xs bg-background/50 rounded p-2">
+                        <div className="grid grid-cols-2 gap-1">
+                          <span className="text-muted-foreground">Challan No:</span>
+                          <span className="font-medium">{challan.challan_number || 'N/A'}</span>
+                          <span className="text-muted-foreground">Amount:</span>
+                          <span className="font-medium">₹{challan.amount || 'N/A'}</span>
+                          <span className="text-muted-foreground">Date:</span>
+                          <span className="font-medium">{challan.challan_date || 'N/A'}</span>
+                          <span className="text-muted-foreground">Offense:</span>
+                          <span className="font-medium">{challan.offense_details || 'N/A'}</span>
                         </div>
-                      ))}
-                    </div>
+                      </div>
+                    ))}
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           )}
 
