@@ -125,7 +125,7 @@ const PermissionsPage = () => {
       const response = await api.updateUserRole(userId, newRole);
       console.log('Role update response:', response);
       if (response.success) {
-        setUsers(prev => prev.map(u => u.id === userId ? { ...u, role: newRole } : u));
+        await fetchUsers();
         toast({ title: 'Role Updated', description: 'User role updated successfully' });
       } else {
         throw new Error(response.error || 'Failed to update role');
