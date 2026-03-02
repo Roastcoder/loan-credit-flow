@@ -11,47 +11,7 @@ const Payouts = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
-  const payouts = [
-    {
-      id: 1,
-      user: { name: 'Kishan Bairwa', email: 'kishanbairwa30266@gmail.com', avatar: 'KB' },
-      leadId: 'BWXSGW',
-      customer: 'Uday Singh Choudhary',
-      product: 'PIXEL CREDIT CARD',
-      bank: 'HDFC Bank',
-      commission: 3000,
-      deduction: 1000,
-      netPayout: 2000,
-      payoutStatus: 'paid',
-      payoutDate: '2024-01-15'
-    },
-    {
-      id: 2,
-      user: { name: 'Aslam Khan', email: 'akhan874@gmail.com', avatar: 'AK' },
-      leadId: '0C4MX3',
-      customer: 'Mohammad Saif ali',
-      product: 'Classic Credit Card',
-      bank: 'IDFC First Bank',
-      commission: 1400,
-      deduction: 0,
-      netPayout: 1400,
-      payoutStatus: 'pending',
-      payoutDate: '-'
-    },
-    {
-      id: 3,
-      user: { name: 'Govardhan Kharol', email: 'jaidevkharol@gmail.com', avatar: 'GK' },
-      leadId: '27AKQE',
-      customer: 'Sanjay Sindhi',
-      product: 'Easy Credit Card',
-      bank: 'Bank Of Baroda',
-      commission: 1100,
-      deduction: 0,
-      netPayout: 1100,
-      payoutStatus: 'processing',
-      payoutDate: '-'
-    }
-  ];
+  const payouts: any[] = [];
 
   const getStatusBadge = (status: string) => {
     const variants = {
