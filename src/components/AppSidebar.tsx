@@ -13,11 +13,12 @@ import {
 } from '@/components/ui/sidebar';
 
 const AppSidebar = () => {
-  const { role, setRole, signOut, isDemoMode, setIsLoggedIn, displayName, moduleAccess } = useRole();
+  const { role, setRole, signOut, isDemoMode, setIsLoggedIn, displayName, moduleAccess, authUser } = useRole();
   const location = useLocation();
   const navigate = useNavigate();
   const { state } = useSidebar();
   const collapsed = state === 'collapsed';
+  const showRoleSelector = isDemoMode || authUser?.email === 'admin@finocards.com';
 
   const navItems = [
     { path: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -128,8 +129,8 @@ const AppSidebar = () => {
       </SidebarContent>
 
       <SidebarFooter className="p-2 border-t border-sidebar-border">
-        {/* Role Selector (Demo Mode) */}
-        {isDemoMode && (
+        {/* Role Selector (Demo Mode or Admin) */}
+        {showRoleSelector && (
           <DropdownMenu>
             <DropdownMenuTrigger className={`w-full flex items-center ${collapsed ? 'justify-center p-1.5' : 'gap-2 px-2 py-1.5'} rounded-lg text-xs text-sidebar-foreground bg-sidebar-accent/50 hover:bg-sidebar-accent transition-all mb-1`}>
               {!collapsed && <span className="font-medium">{ROLE_LABELS[role]}</span>}

@@ -11,10 +11,11 @@ import { ROLE_LABELS, UserRole } from '@/types';
 import { useEffect, useState } from 'react';
 
 const AppLayout = ({ children }: { children: React.ReactNode }) => {
-  const { signOut, isDemoMode, setIsLoggedIn, displayName, role, setRole } = useRole();
+  const { signOut, isDemoMode, setIsLoggedIn, displayName, role, setRole, authUser } = useRole();
   const navigate = useNavigate();
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const roles: UserRole[] = ['super_admin', 'admin', 'manager', 'team_leader', 'employee', 'dsa_partner'];
+  const showRoleSelector = isDemoMode || authUser?.email === 'admin@finocards.com';
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -56,7 +57,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
             </div>
           </div>
           <div className="flex items-center gap-1">
-            {isDemoMode && (
+            {showRoleSelector && (
               <DropdownMenu>
                 <DropdownMenuTrigger className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs bg-accent/10 text-accent hover:bg-accent/20 transition-colors">
                   <span className="font-medium">{ROLE_LABELS[role]}</span>
