@@ -58,6 +58,7 @@ const Profile = () => {
     employeeType: profile?.employee_type || 'N/A',
     accountNumber: profile?.bank_account || 'N/A',
     ifsc: profile?.ifsc || 'N/A',
+    bankName: profile?.bank_name || 'N/A',
     profilePic: profile?.aadhaar_photo ? `data:image/jpeg;base64,${profile.aadhaar_photo}` : null,
   };
 
@@ -153,6 +154,12 @@ const Profile = () => {
                 <h2 className="text-lg font-display font-semibold text-card-foreground">Bank Information</h2>
               </div>
               <div className="space-y-4">
+                {userProfile.bankName !== 'N/A' && (
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-1">Bank Name</p>
+                    <p className="text-sm font-medium text-card-foreground">{userProfile.bankName}</p>
+                  </div>
+                )}
                 <div>
                   <p className="text-xs text-muted-foreground mb-1">Account Number</p>
                   <p className="text-sm font-medium text-card-foreground font-mono">{userProfile.accountNumber}</p>
