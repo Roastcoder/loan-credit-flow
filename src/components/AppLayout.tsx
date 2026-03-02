@@ -4,14 +4,17 @@ import Footer from './Footer';
 import NotificationBell from './NotificationBell';
 import { useRole } from '@/contexts/RoleContext';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, UserCircle } from 'lucide-react';
+import { LogOut, UserCircle, ChevronDown } from 'lucide-react';
 import { SidebarProvider, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { ROLE_LABELS, UserRole } from '@/types';
 import { useEffect, useState } from 'react';
 
 const AppLayout = ({ children }: { children: React.ReactNode }) => {
-  const { signOut, isDemoMode, setIsLoggedIn, displayName } = useRole();
+  const { signOut, isDemoMode, setIsLoggedIn, displayName, role, setRole } = useRole();
   const navigate = useNavigate();
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
+  const roles: UserRole[] = ['super_admin', 'admin', 'manager', 'team_leader', 'employee', 'dsa_partner'];
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -53,6 +56,21 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
             </div>
           </div>
           <div className="flex items-center gap-1">
+            {isDemoMode && (
+              <DropdownMenu>
+                <DropdownMenuTrigger className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs bg-accent/10 text-accent hover:bg-accent/20 transition-colors">
+                  <span className="font-medium">{ROLE_LABELS[role]}</span>
+                  <ChevronDown className="w-3 h-3" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-40">
+                  {roles.map((r) => (
+                    <DropdownMenuItem key={r} onClick={() => setRole(r)} className="text-xs">
+                      {ROLE_LABELS[r]}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
             <NotificationBell />
             <button onClick={handleLogout} className="p-2 rounded-lg hover:bg-muted transition-colors">
               <LogOut className="w-4 h-4 text-muted-foreground" />

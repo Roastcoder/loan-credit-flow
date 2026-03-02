@@ -1,6 +1,7 @@
-import { UserCircle, CreditCard, Building2, Mail, Phone, MapPin, Calendar, Cake } from 'lucide-react';
+import { UserCircle, CreditCard, Building2, Mail, Phone, MapPin, Calendar, Cake, Shield } from 'lucide-react';
 import AppLayout from '@/components/AppLayout';
 import { useRole } from '@/contexts/RoleContext';
+import { ROLE_LABELS } from '@/types';
 import { useEffect, useState } from 'react';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
@@ -8,6 +9,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001
 const Profile = () => {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const { role } = useRole();
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -104,6 +106,13 @@ const Profile = () => {
                   <div>
                     <p className="text-xs text-muted-foreground">Channel Code</p>
                     <p className="text-sm font-medium text-card-foreground">{userProfile.channelCode}</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Shield className="w-5 h-5 text-muted-foreground mt-0.5" />
+                  <div>
+                    <p className="text-xs text-muted-foreground">Role</p>
+                    <p className="text-sm font-medium text-card-foreground">{ROLE_LABELS[role]}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">

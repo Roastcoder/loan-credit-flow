@@ -128,6 +128,23 @@ const AppSidebar = () => {
       </SidebarContent>
 
       <SidebarFooter className="p-2 border-t border-sidebar-border">
+        {/* Role Selector (Demo Mode) */}
+        {isDemoMode && (
+          <DropdownMenu>
+            <DropdownMenuTrigger className={`w-full flex items-center ${collapsed ? 'justify-center p-1.5' : 'gap-2 px-2 py-1.5'} rounded-lg text-xs text-sidebar-foreground bg-sidebar-accent/50 hover:bg-sidebar-accent transition-all mb-1`}>
+              {!collapsed && <span className="font-medium">{ROLE_LABELS[role]}</span>}
+              <ChevronDown className="w-3.5 h-3.5 flex-shrink-0" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              {roles.map((r) => (
+                <DropdownMenuItem key={r} onClick={() => setRole(r)} className="text-xs">
+                  {ROLE_LABELS[r]}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+        
         {/* Logout */}
         <button
           onClick={handleLogout}
