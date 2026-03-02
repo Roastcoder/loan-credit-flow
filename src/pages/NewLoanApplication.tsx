@@ -164,18 +164,14 @@ const NewLoanApplication = () => {
     }
     setFetchingChallan(true);
     try {
-      const response = await fetch('https://kyc-api.surepass.io/api/v1/rc/rc-related/challan-details', {
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+      const response = await fetch(`${API_BASE_URL}/api/rc/challan.php`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc2NjM5ODg5MiwianRpIjoiMjdiNjdiNWEtZjkyZC00YTZmLTk2NmMtMDhhZjc4ZjAwNmI2IiwidHlwZSI6ImFjY2VzcyIsImlkZW50aXR5IjoiZGV2LmZpbm9uZXN0aW5kaWFAc3VyZXBhc3MuaW8iLCJuYmYiOjE3NjYzOTg4OTIsImV4cCI6MjM5NzExODg5MiwiZW1haWwiOiJmaW5vbmVzdGluZGlhQHN1cmVwYXNzLmlvIiwidGVuYW50X2lkIjoibWFpbiIsInVzZXJfY2xhaW1zIjp7InNjb3BlcyI6WyJ1c2VyIl19fQ.dl1S5S3OxNs3hwxkwtLhcTAN6CmIlYa_hg4yOl5ASlg',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           rc_number: form.rcNumber,
           chassis_number: form.chassisNumber,
-          engine_number: form.engineNumber,
-          state_only: false,
-          state_portal: ['DL', 'TS', 'KA', 'GJ', 'MH', 'UP', 'RJ', 'HR', 'PB']
+          engine_number: form.engineNumber
         }),
       });
       const result = await response.json();
