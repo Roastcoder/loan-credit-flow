@@ -392,7 +392,6 @@ const PermissionsPage = () => {
                                   <SelectItem value="team_leader">Team Leader</SelectItem>
                                   <SelectItem value="manager">Manager</SelectItem>
                                   <SelectItem value="admin">Admin</SelectItem>
-                                  <SelectItem value="super_admin">Super Admin</SelectItem>
                                 </SelectContent>
                               </Select>
                             </TableCell>

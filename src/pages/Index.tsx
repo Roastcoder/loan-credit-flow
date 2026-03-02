@@ -34,6 +34,7 @@ const Index = () => {
   }, []);
 
   const fetchCards = async () => {
+    setLoading(true);
     try {
       const data = await api.getCreditCards();
       setCreditCards(data.records || []);
@@ -308,18 +309,24 @@ const Index = () => {
 
   return (
     <AppLayout>
-      <div className="space-y-4 md:space-y-5">
-        <div>
-          <h1 className="text-xl md:text-2xl font-display font-bold text-foreground">
-            Welcome back{displayName ? `, ${displayName}` : ''}
-          </h1>
-          <p className="text-muted-foreground mt-0.5 text-xs">
-            Logged in as <span className="font-semibold text-accent">{ROLE_LABELS[role]}</span> · Here&apos;s your overview
-          </p>
+      {loading ? (
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
         </div>
+      ) : (
+        <div className="space-y-4 md:space-y-5">
+          <div>
+            <h1 className="text-xl md:text-2xl font-display font-bold text-foreground">
+              Welcome back{displayName ? `, ${displayName}` : ''}
+            </h1>
+            <p className="text-muted-foreground mt-0.5 text-xs">
+              Logged in as <span className="font-semibold text-accent">{ROLE_LABELS[role]}</span> · Here&apos;s your overview
+            </p>
+          </div>
 
-        {renderRoleDashboard()}
-      </div>
+          {renderRoleDashboard()}
+        </div>
+      )}
     </AppLayout>
   );
 };
