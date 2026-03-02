@@ -47,6 +47,8 @@ const NewLoanApplication = () => {
   const [loading, setLoading] = useState(false);
   const [verifyingRC, setVerifyingRC] = useState(false);
   const [rcVerifyCount, setRcVerifyCount] = useState(0);
+  const [fetchingChallan, setFetchingChallan] = useState(false);
+  const [challanData, setChallanData] = useState<any>(null);
 
   const [form, setForm] = useState({
     // Customer Details
@@ -85,6 +87,7 @@ const NewLoanApplication = () => {
     existingEmi: '',
     purpose: '',
     bankName: '',
+    challanStatus: '',
   });
 
   const update = (key: string, value: string) => setForm(prev => ({ ...prev, [key]: value }));
@@ -147,6 +150,48 @@ const NewLoanApplication = () => {
       }
     } finally {
       setVerifyingRC(false);
+    }
+  };
+
+  const handleFetchChallan = async () => {
+    if (!form.rcNumber) {
+      toast({ title: 'Error', description: 'Please verify RC number first', variant: 'destructive' });
+      return;
+    }
+    if (!form.chassisNumber || !form.engineNumber) {
+      toast({ title: 'Error', description: 'Chassis and Engine numbers not found. Verify RC first.', variant: 'destructive' });
+      return;
+    }
+    setFetchingChallan(true);
+    try {
+      const response = await fetch('https://kyc-api.surepass.io/api/v1/rc/rc-related/challan-details', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc2NjM5ODg5MiwianRpIjoiMjdiNjdiNWEtZjkyZC00YTZmLTk2NmMtMDhhZjc4ZjAwNmI2IiwidHlwZSI6ImFjY2VzcyIsImlkZW50aXR5IjoiZGV2LmZpbm9uZXN0aW5kaWFAc3VyZXBhc3MuaW8iLCJuYmYiOjE3NjYzOTg4OTIsImV4cCI6MjM5NzExODg5MiwiZW1haWwiOiJmaW5vbmVzdGluZGlhQHN1cmVwYXNzLmlvIiwidGVuYW50X2lkIjoibWFpbiIsInVzZXJfY2xhaW1zIjp7InNjb3BlcyI6WyJ1c2VyIl19fQ.dl1S5S3OxNs3hwxkwtLhcTAN6CmIlYa_hg4yOl5ASlg',
+        },
+        body: JSON.stringify({
+          rc_number: form.rcNumber,
+          chassis_number: form.chassisNumber,
+          engine_number: form.engineNumber,
+          state_only: false,
+          state_portal: ['DL', 'TS', 'KA', 'GJ', 'MH', 'UP', 'RJ', 'HR', 'PB']
+        }),
+      });
+      const result = await response.json();
+      if (result.success && result.data) {
+        setChallanData(result.data);
+        const challanCount = result.data.challan_details?.length || 0;
+        const status = challanCount > 0 ? `${challanCount} Challan(s) Found` : 'No Challans';
+        update('challanStatus', status);
+        toast({ title: 'Challan Fetched', description: status });
+      } else {
+        throw new Error(result.message || 'Failed to fetch challan');
+      }
+    } catch (error: any) {
+      toast({ title: 'Challan Fetch Failed', description: error.message, variant: 'destructive' });
+    } finally {
+      setFetchingChallan(false);
     }
   };
 
@@ -334,7 +379,37 @@ const NewLoanApplication = () => {
                     <Label className="text-xs font-semibold">Financed Status</Label>
                     <Input value={form.financedStatus} onChange={e => update('financedStatus', e.target.value)} placeholder="Financed status" className="mt-1.5" />
                   </div>
+                  <div>
+                    <Label className="text-xs font-semibold">Challan Status</Label>
+                    <div className="flex gap-2 mt-1.5">
+                      <Input value={form.challanStatus} placeholder="Challan status" className="bg-muted" readOnly />
+                      <Button type="button" onClick={handleFetchChallan} disabled={fetchingChallan} variant="outline" className="whitespace-nowrap">
+                        {fetchingChallan ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Fetch'}
+                      </Button>
+                    </div>
+                  </div>
                 </div>
+                {challanData && challanData.challan_details && challanData.challan_details.length > 0 && (
+                  <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3">
+                    <p className="text-xs font-semibold text-destructive mb-2">Challan Details:</p>
+                    <div className="space-y-2 max-h-40 overflow-y-auto">
+                      {challanData.challan_details.map((challan: any, idx: number) => (
+                        <div key={idx} className="text-xs bg-background/50 rounded p-2">
+                          <div className="grid grid-cols-2 gap-1">
+                            <span className="text-muted-foreground">Challan No:</span>
+                            <span className="font-medium">{challan.challan_number || 'N/A'}</span>
+                            <span className="text-muted-foreground">Amount:</span>
+                            <span className="font-medium">₹{challan.amount || 'N/A'}</span>
+                            <span className="text-muted-foreground">Date:</span>
+                            <span className="font-medium">{challan.date || 'N/A'}</span>
+                            <span className="text-muted-foreground">Violation:</span>
+                            <span className="font-medium">{challan.violation || 'N/A'}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
