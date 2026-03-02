@@ -29,13 +29,14 @@ const BottomNav = () => {
   ].filter(item => item.show);
 
   const quickActions = [
+    ...(moduleAccess.creditCards ? [{ label: 'Credit Card', icon: CreditCard, path: '/leads', state: {}, color: 'bg-indigo-500/10 text-indigo-600' }] : []),
     { label: 'Car Loan', icon: Car, path: '/loan-disbursement/new', state: { preselect: 'car_loan' }, color: 'bg-blue-500/10 text-blue-600' },
     { label: 'Home Loan', icon: Home, path: '/loan-disbursement/new', state: { preselect: 'home_loan' }, color: 'bg-emerald-500/10 text-emerald-600' },
     { label: 'PL / BL', icon: Briefcase, path: '/loan-disbursement/new', state: { preselect: 'personal_loan' }, color: 'bg-amber-500/10 text-amber-600' },
     { label: 'Team App', icon: Users, path: '/loan-disbursement/new', state: { preselect: 'other' }, color: 'bg-purple-500/10 text-purple-600' },
   ];
 
-  const showPlusButton = moduleAccess.loanDisbursement;
+  const showPlusButton = moduleAccess.loanDisbursement || moduleAccess.creditCards;
 
   const renderNavItem = (item: { path: string; label: string; icon: React.ElementType }) => {
     const isActive = location.pathname === item.path;
