@@ -123,15 +123,19 @@ const PermissionsPage = () => {
   const handleRoleChange = async (userId: string, newRole: string) => {
     try {
       const response = await api.updateUserRole(userId, newRole);
-      console.log('Role update response:', response);
       if (response.success) {
         await fetchUsers();
+        const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+        if (currentUser.id === userId) {
+          currentUser.role = newRole;
+          localStorage.setItem('user', JSON.stringify(currentUser));
+          window.location.reload();
+        }
         toast({ title: 'Role Updated', description: 'User role updated successfully' });
       } else {
         throw new Error(response.error || 'Failed to update role');
       }
     } catch (error: any) {
-      console.error('Role update error:', error);
       toast({ title: 'Error', description: error.message || 'Failed to update role', variant: 'destructive' });
     }
   };
