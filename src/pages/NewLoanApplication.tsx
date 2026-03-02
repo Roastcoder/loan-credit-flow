@@ -155,11 +155,7 @@ const NewLoanApplication = () => {
 
   const handleFetchChallan = async () => {
     if (!form.rcNumber) {
-      toast({ title: 'Error', description: 'Please verify RC number first', variant: 'destructive' });
-      return;
-    }
-    if (!form.chassisNumber || !form.engineNumber) {
-      toast({ title: 'Error', description: 'Chassis and Engine numbers not found. Verify RC first.', variant: 'destructive' });
+      toast({ title: 'Error', description: 'Please enter RC number', variant: 'destructive' });
       return;
     }
     setFetchingChallan(true);
@@ -168,16 +164,12 @@ const NewLoanApplication = () => {
       const response = await fetch(`${API_BASE_URL}/api/rc/challan.php`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          rc_number: form.rcNumber,
-          chassis_number: form.chassisNumber,
-          engine_number: form.engineNumber
-        }),
+        body: JSON.stringify({ rc_number: form.rcNumber }),
       });
       const result = await response.json();
       if (result.success && result.data) {
         setChallanData(result.data);
-        const challanCount = result.data.challan_details?.length || 0;
+        const challanCount = result.data.challan_details?.challans?.length || 0;
         const status = challanCount > 0 ? `${challanCount} Challan(s) Found` : 'No Challans';
         update('challanStatus', status);
         toast({ title: 'Challan Fetched', description: status });
@@ -385,11 +377,11 @@ const NewLoanApplication = () => {
                     </div>
                   </div>
                 </div>
-                {challanData && challanData.challan_details && challanData.challan_details.length > 0 && (
+                {challanData && challanData.challan_details?.challans && challanData.challan_details.challans.length > 0 && (
                   <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3">
                     <p className="text-xs font-semibold text-destructive mb-2">Challan Details:</p>
                     <div className="space-y-2 max-h-40 overflow-y-auto">
-                      {challanData.challan_details.map((challan: any, idx: number) => (
+                      {challanData.challan_details.challans.map((challan: any, idx: number) => (
                         <div key={idx} className="text-xs bg-background/50 rounded p-2">
                           <div className="grid grid-cols-2 gap-1">
                             <span className="text-muted-foreground">Challan No:</span>
@@ -397,9 +389,9 @@ const NewLoanApplication = () => {
                             <span className="text-muted-foreground">Amount:</span>
                             <span className="font-medium">₹{challan.amount || 'N/A'}</span>
                             <span className="text-muted-foreground">Date:</span>
-                            <span className="font-medium">{challan.date || 'N/A'}</span>
-                            <span className="text-muted-foreground">Violation:</span>
-                            <span className="font-medium">{challan.violation || 'N/A'}</span>
+                            <span className="font-medium">{challan.challan_date || 'N/A'}</span>
+                            <span className="text-muted-foreground">Offense:</span>
+                            <span className="font-medium">{challan.offense_details || 'N/A'}</span>
                           </div>
                         </div>
                       ))}
