@@ -453,18 +453,103 @@ const NewLoanApplication = () => {
                   className="w-full px-4 py-2.5 bg-background border-b border-border focus:border-accent outline-none transition-colors text-sm"
                 >
                   <option value="">Case Type</option>
-                  <option value="new">New</option>
-                  <option value="top_up">Top Up</option>
-                  <option value="balance_transfer">Balance Transfer</option>
-                  <option value="bt_top_up">BT + Top Up</option>
+                  <option value="new_car_purchase">New Car - Purchase</option>
+                  <option value="used_car_purchase">Used Car - Purchase</option>
+                  <option value="used_car_refinance">Used Car - Refinance</option>
+                  <option value="used_car_topup">Used Car - Top-up</option>
+                  <option value="used_car_bt">Used Car - BT</option>
                 </select>
-                <input
-                  type="text"
-                  placeholder="Bank / Financer Name"
+                <select
                   value={form.bankName}
                   onChange={e => update('bankName', e.target.value)}
                   className="w-full px-4 py-2.5 bg-background border-b border-border focus:border-accent outline-none transition-colors text-sm"
-                />
+                >
+                  <option value="">Bank / Financer Name</option>
+                  <option value="apm_finvest">APM Finvest</option>
+                  <option value="au_small_finance">AU Small Finance Bank</option>
+                  <option value="axis_bank">Axis Bank</option>
+                  <option value="bajaj_finance">Bajaj Finance</option>
+                  <option value="bajaj_finserv">Bajaj Finserv Ltd</option>
+                  <option value="bandhan_bank">Bandhan Bank</option>
+                  <option value="bank_of_baroda">Bank of Baroda</option>
+                  <option value="bank_of_india">Bank of India</option>
+                  <option value="bank_of_maharashtra">Bank of Maharashtra</option>
+                  <option value="cars24">CARS 24</option>
+                  <option value="canara_bank">Canara Bank</option>
+                  <option value="capital_first">Capital First</option>
+                  <option value="central_bank">Central Bank of India</option>
+                  <option value="cholamandalam_finance">Cholamandalam Finance</option>
+                  <option value="cholamandalam_investment">Cholamandalam Investment & Finance</option>
+                  <option value="city_union_bank">City Union Bank</option>
+                  <option value="dhanlaxmi_bank">Dhanlaxmi Bank</option>
+                  <option value="esaf_small_finance">ESAF Small Finance Bank</option>
+                  <option value="equitas_small_finance">Equitas Small Finance Bank</option>
+                  <option value="federal_bank">Federal Bank</option>
+                  <option value="ford_credit">Ford Credit India</option>
+                  <option value="fortune_finance">Fortune Finance</option>
+                  <option value="fullerton_india">Fullerton India</option>
+                  <option value="hdb_financial">HDB Financial Services</option>
+                  <option value="hdfc_bank">HDFC Bank</option>
+                  <option value="hero_fincorp">Hero FinCorp</option>
+                  <option value="hinduja_leyland">Hinduja Leyland Finance</option>
+                  <option value="icici_bank">ICICI Bank</option>
+                  <option value="idbi_bank">IDBI Bank</option>
+                  <option value="idfc_first">IDFC First Bank</option>
+                  <option value="iifl_finance">IIFL Finance</option>
+                  <option value="ikf_finance">IKF Finance</option>
+                  <option value="indian_bank">Indian Bank</option>
+                  <option value="indostar">Indostar</option>
+                  <option value="indostar_capital">Indostar Capital Finance</option>
+                  <option value="indusind_bank">IndusInd Bank</option>
+                  <option value="jk_bank">Jammu & Kashmir Bank</option>
+                  <option value="karnataka_bank">Karnataka Bank</option>
+                  <option value="karur_vysya">Karur Vysya Bank</option>
+                  <option value="kogta_financial">Kogta Financial India Limited</option>
+                  <option value="kotak_mahindra_bank">Kotak Mahindra Bank</option>
+                  <option value="kotak_mahindra_prime">Kotak Mahindra Prime</option>
+                  <option value="lt_finance">L&T Finance</option>
+                  <option value="lakshmi_vilas">Lakshmi Vilas Bank</option>
+                  <option value="magma_fincorp">Magma Fincorp</option>
+                  <option value="mahindra_finance">Mahindra Finance</option>
+                  <option value="manappuram_finance">Manappuram Finance</option>
+                  <option value="maruti_suzuki">Maruti Suzuki Finance</option>
+                  <option value="muthoot_capital">Muthoot Capital Services</option>
+                  <option value="muthoot_finance">Muthoot Finance</option>
+                  <option value="oriental_bank">Oriental Bank of Commerce</option>
+                  <option value="piramal">Piramal</option>
+                  <option value="poonawalla_fincorp">Poonawalla Fincorp Limited</option>
+                  <option value="punjab_national">Punjab National Bank</option>
+                  <option value="rbl_bank">RBL Bank</option>
+                  <option value="reliance_commercial">Reliance Commercial Finance</option>
+                  <option value="renault_finance">Renault Finance</option>
+                  <option value="shriram_finance">Shriram Finance Limited</option>
+                  <option value="shriram_transport">Shriram Transport Finance</option>
+                  <option value="sk_finance">Sk Finance</option>
+                  <option value="skoda_finance">Skoda Finance</option>
+                  <option value="south_indian_bank">South Indian Bank</option>
+                  <option value="sbb_jaipur">State Bank of Bikaner & Jaipur</option>
+                  <option value="sb_hyderabad">State Bank of Hyderabad</option>
+                  <option value="sbi">State Bank of India</option>
+                  <option value="sb_mysore">State Bank of Mysore</option>
+                  <option value="sb_patiala">State Bank of Patiala</option>
+                  <option value="sb_travancore">State Bank of Travancore</option>
+                  <option value="sundaram_finance">Sundaram Finance</option>
+                  <option value="syndicate_bank">Syndicate Bank</option>
+                  <option value="tvs_credit">TVS Credit Services</option>
+                  <option value="tamilnad_mercantile">Tamilnad Mercantile Bank</option>
+                  <option value="tata_capital">Tata Capital</option>
+                  <option value="toyota_financial">Toyota Financial Services</option>
+                  <option value="toyota_financial_india">Toyota Financial Services India Limited</option>
+                  <option value="uco_bank">UCO Bank</option>
+                  <option value="union_bank">Union Bank of India</option>
+                  <option value="united_bank">United Bank of India</option>
+                  <option value="vastu_finserve">Vastu Finserve</option>
+                  <option value="vijaya_bank">Vijaya Bank</option>
+                  <option value="volkswagen_finance">Volkswagen Finance</option>
+                  <option value="yes_bank">Yes Bank</option>
+                  <option value="dugar_finance">Dugar finance</option>
+                  <option value="others">Others</option>
+                </select>
               </>
             )}
             {isHomeLoan && (
