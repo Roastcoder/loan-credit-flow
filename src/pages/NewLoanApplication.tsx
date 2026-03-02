@@ -254,39 +254,44 @@ const NewLoanApplication = () => {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Section: Customer Details */}
-          <div className="bg-card rounded-xl border border-border shadow-card overflow-hidden">
-            <div className="p-4 border-b border-border bg-muted/30 flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-accent" />
-              <h2 className="font-display font-semibold text-card-foreground">Customer Details</h2>
-            </div>
-            <div className="p-4 md:p-6 space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-xs font-semibold">Disbursement Date <span className="text-destructive">*</span></Label>
-                  <Input type="date" value={form.disbursementDate} onChange={e => update('disbursementDate', e.target.value)} className="mt-1.5" />
-                </div>
-                <div>
-                  <Label className="text-xs font-semibold">Channel Code <span className="text-destructive">*</span></Label>
-                  <Input value={form.channelCode} className="mt-1.5 bg-muted" disabled readOnly />
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-xs font-semibold">Dealing Person Name <span className="text-destructive">*</span></Label>
-                  <Input value={form.dealingPersonName} className="mt-1.5 bg-muted" disabled readOnly />
-                </div>
-                <div>
-                  <Label className="text-xs font-semibold">Customer Name <span className="text-destructive">*</span></Label>
-                  <Input value={form.customerName} onChange={e => update('customerName', e.target.value)} placeholder="Enter customer name" className="mt-1.5" required />
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-xs font-semibold">Mobile Number <span className="text-destructive">*</span></Label>
-                  <Input type="tel" value={form.mobileNumber} onChange={e => update('mobileNumber', e.target.value)} placeholder="Enter 10-digit mobile number" className="mt-1.5" required />
-                </div>
-              </div>
-            </div>
+          <div className="bg-card rounded-xl p-6 shadow-card border border-border space-y-3">
+            <input
+              type="date"
+              placeholder="Disbursement Date"
+              value={form.disbursementDate}
+              onChange={e => update('disbursementDate', e.target.value)}
+              className="w-full px-4 py-2.5 bg-background border-b border-border focus:border-accent outline-none transition-colors text-sm"
+            />
+            <input
+              type="text"
+              placeholder="Channel Code"
+              value={form.channelCode}
+              readOnly
+              className="w-full px-4 py-2.5 bg-muted border-b border-border outline-none text-sm"
+            />
+            <input
+              type="text"
+              placeholder="Dealing Person Name"
+              value={form.dealingPersonName}
+              readOnly
+              className="w-full px-4 py-2.5 bg-muted border-b border-border outline-none text-sm"
+            />
+            <input
+              type="text"
+              placeholder="Customer Name"
+              value={form.customerName}
+              onChange={e => update('customerName', e.target.value)}
+              className="w-full px-4 py-2.5 bg-background border-b border-border focus:border-accent outline-none transition-colors text-sm"
+              required
+            />
+            <input
+              type="tel"
+              placeholder="Mobile Number"
+              value={form.mobileNumber}
+              onChange={e => update('mobileNumber', e.target.value)}
+              className="w-full px-4 py-2.5 bg-background border-b border-border focus:border-accent outline-none transition-colors text-sm"
+              required
+            />
           </div>
 
           {/* Section: Vehicle Details (Car Loan only) */}
@@ -438,63 +443,67 @@ const NewLoanApplication = () => {
             </div>
           )}
 
-          {/* Section: Finance Details (Home Loan) / Loan Details (Other types) */}
-          <div className="bg-card rounded-xl border border-border shadow-card overflow-hidden">
-            <div className="p-4 border-b border-border bg-muted/30 flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-destructive" />
-              <h2 className="font-display font-semibold text-card-foreground">{isHomeLoan ? 'Finance Details' : 'Loan Details'}</h2>
-            </div>
-            <div className="p-4 md:p-6 space-y-4">
-              {!isHomeLoan && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-xs font-semibold">Case Type <span className="text-destructive">*</span></Label>
-                    <Select value={form.caseType} onValueChange={v => update('caseType', v)}>
-                      <SelectTrigger className="mt-1.5"><SelectValue placeholder="Select case type" /></SelectTrigger>
-                      <SelectContent className="bg-popover border border-border z-50">
-                        <SelectItem value="new">New</SelectItem>
-                        <SelectItem value="top_up">Top Up</SelectItem>
-                        <SelectItem value="balance_transfer">Balance Transfer</SelectItem>
-                        <SelectItem value="bt_top_up">BT + Top Up</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label className="text-xs font-semibold">Bank / Financer Name <span className="text-destructive">*</span></Label>
-                    <Input value={form.bankName} onChange={e => update('bankName', e.target.value)} placeholder="Select financer" className="mt-1.5" />
-                  </div>
-                </div>
-              )}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {isHomeLoan && (
-                  <div>
-                    <Label className="text-xs font-semibold">Financier</Label>
-                    <Select value={form.bankName} onValueChange={v => update('bankName', v)}>
-                      <SelectTrigger className="mt-1.5"><SelectValue placeholder="Select Financier" /></SelectTrigger>
-                      <SelectContent className="bg-popover border border-border z-50">
-                        <SelectItem value="hdfc">HDFC Bank</SelectItem>
-                        <SelectItem value="icici">ICICI Bank</SelectItem>
-                        <SelectItem value="sbi">SBI</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
-                {!isHomeLoan && (
-                  <div>
-                    <Label className="text-xs font-semibold">Loan Amount (₹) <span className="text-destructive">*</span></Label>
-                    <Input type="number" value={form.loanAmount} onChange={e => update('loanAmount', e.target.value)} placeholder="Enter loan amount" className="mt-1.5" required />
-                  </div>
-                )}
-                <div>
-                  <Label className="text-xs font-semibold">{isHomeLoan ? 'ROI (Rate of Interest %)' : 'Rate of Interest (%)'}</Label>
-                  <Input type="number" step="0.01" value={form.rateOfInterest} onChange={e => update('rateOfInterest', e.target.value)} placeholder="Enter ROI" className="mt-1.5" />
-                </div>
-                <div>
-                  <Label className="text-xs font-semibold">Tenure (in Months)</Label>
-                  <Input type="number" value={form.tenure} onChange={e => update('tenure', e.target.value)} placeholder="Enter tenure" className="mt-1.5" />
-                </div>
-              </div>
-            </div>
+          {/* Section: Loan Details */}
+          <div className="bg-card rounded-xl p-6 shadow-card border border-border space-y-3">
+            {!isHomeLoan && (
+              <>
+                <select
+                  value={form.caseType}
+                  onChange={e => update('caseType', e.target.value)}
+                  className="w-full px-4 py-2.5 bg-background border-b border-border focus:border-accent outline-none transition-colors text-sm"
+                >
+                  <option value="">Case Type</option>
+                  <option value="new">New</option>
+                  <option value="top_up">Top Up</option>
+                  <option value="balance_transfer">Balance Transfer</option>
+                  <option value="bt_top_up">BT + Top Up</option>
+                </select>
+                <input
+                  type="text"
+                  placeholder="Bank / Financer Name"
+                  value={form.bankName}
+                  onChange={e => update('bankName', e.target.value)}
+                  className="w-full px-4 py-2.5 bg-background border-b border-border focus:border-accent outline-none transition-colors text-sm"
+                />
+              </>
+            )}
+            {isHomeLoan && (
+              <select
+                value={form.bankName}
+                onChange={e => update('bankName', e.target.value)}
+                className="w-full px-4 py-2.5 bg-background border-b border-border focus:border-accent outline-none transition-colors text-sm"
+              >
+                <option value="">Select Financier</option>
+                <option value="hdfc">HDFC Bank</option>
+                <option value="icici">ICICI Bank</option>
+                <option value="sbi">SBI</option>
+              </select>
+            )}
+            {!isHomeLoan && (
+              <input
+                type="number"
+                placeholder="Loan Amount (₹)"
+                value={form.loanAmount}
+                onChange={e => update('loanAmount', e.target.value)}
+                className="w-full px-4 py-2.5 bg-background border-b border-border focus:border-accent outline-none transition-colors text-sm"
+                required
+              />
+            )}
+            <input
+              type="number"
+              step="0.01"
+              placeholder={isHomeLoan ? 'ROI (Rate of Interest %)' : 'Rate of Interest (%)'}
+              value={form.rateOfInterest}
+              onChange={e => update('rateOfInterest', e.target.value)}
+              className="w-full px-4 py-2.5 bg-background border-b border-border focus:border-accent outline-none transition-colors text-sm"
+            />
+            <input
+              type="number"
+              placeholder="Tenure (in Months)"
+              value={form.tenure}
+              onChange={e => update('tenure', e.target.value)}
+              className="w-full px-4 py-2.5 bg-background border-b border-border focus:border-accent outline-none transition-colors text-sm"
+            />
           </div>
 
           {/* Section: Final Status (Home Loan only) */}
