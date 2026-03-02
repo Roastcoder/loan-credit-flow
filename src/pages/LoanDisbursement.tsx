@@ -146,25 +146,6 @@ const LoanDisbursementPage = () => {
               </div>
             </div>
 
-            {/* Category chips */}
-            <div className="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4 mt-6">
-              {categoryStats.map(cat => (
-                <button
-                  key={cat.key}
-                  onClick={() => setCategoryFilter(categoryFilter === cat.key ? 'all' : cat.key)}
-                  className={`p-4 md:p-5 rounded-xl border text-left transition-all duration-200 ${
-                    categoryFilter === cat.key 
-                      ? 'border-accent bg-accent/10 shadow-lg scale-105' 
-                      : 'border-border bg-card/50 backdrop-blur-sm hover:border-accent/40 hover:shadow-md'
-                  }`}
-                >
-                  <p className="text-[10px] md:text-xs text-muted-foreground font-semibold uppercase tracking-wide truncate">{cat.label}</p>
-                  <p className="text-xl md:text-2xl font-display font-bold text-card-foreground mt-1">{cat.count}</p>
-                  <p className="text-[10px] md:text-xs text-accent font-medium mt-0.5">₹{(cat.total / 100000).toFixed(1)}L</p>
-                </button>
-              ))}
-            </div>
-
             {/* Filters */}
             <div className="flex gap-3 items-center mt-6">
               <div className="relative flex-1">
