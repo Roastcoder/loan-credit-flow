@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Plus, Search, Check, CreditCard as CreditCardIcon, Edit } from 'lucide-react';
+import { Plus, Search, Check, CreditCard as CreditCardIcon, Edit, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '@/components/AppLayout';
 import { useRole } from '@/contexts/RoleContext';
@@ -316,15 +316,14 @@ const CreditCards = () => {
           <Input placeholder="Search by name or bank..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10" />
         </div>
 
-        {/* Category and Bank Filters */}
+        {/* Bank Filters */}
         <div className='w-[90vw] md:w-[70vw] lg:w-[80vw] overflow-hidden px-4 py-3 overflow-x-scroll scrollbar-hide'> 
- 
-          <div className="flex gap-2 items-center ">
+          <div className="flex gap-2 px-4 md:px-6 lg:px-8 pb-2">
             <Button
               size="sm"
               variant={selectedBank === 'all' ? 'default' : 'outline'}
               onClick={() => setSelectedBank('all')}
-              className={selectedBank === 'all' ? 'gradient-accent text-accent-foreground border-0' : ''}
+              className={`whitespace-nowrap flex-shrink-0 ${selectedBank === 'all' ? 'gradient-accent text-accent-foreground border-0' : ''}`}
             >
               All
             </Button>
@@ -334,18 +333,16 @@ const CreditCards = () => {
                 size="sm"
                 variant={selectedBank === bank ? 'default' : 'outline'}
                 onClick={() => setSelectedBank(bank)}
-                className={selectedBank === bank ? 'gradient-accent text-accent-foreground border-0' : ''}
+                className={`whitespace-nowrap flex-shrink-0 ${selectedBank === bank ? 'gradient-accent text-accent-foreground border-0' : ''}`}
               >
                 {bank}
               </Button>
             ))}
           </div>
-   
-
         </div>
        
 
-        {/* Card Grid — horizontal card+info layout like reference */}
+        {/* Card Display */}
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <div className="text-center">
@@ -354,83 +351,257 @@ const CreditCards = () => {
             </div>
           </div>
         ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {displayedCards.map(card => {
-            const features = CARD_FEATURES[card.id] || ['Premium benefits', 'Reward points', 'Low interest rates'];
-            return (
-              <button
-                key={card.id}
-                onClick={() => {
-                  const slug = card.name.toLowerCase().replace(/\s+/g, '-');
-                  navigate(`/credit-cards/${slug}`);
-                }}
-                className="bg-card rounded-xl border border-border shadow-card overflow-hidden text-left hover:shadow-elevated hover:border-accent/20 transition-all duration-200 group"
-              >
-                <div className="flex flex-row">
-                  {/* Card Image */}
-                  <div className="w-36 sm:w-44 flex-shrink-0 bg-muted/30 flex items-center justify-center p-4">
-                    <img
-                      src={(card as any).card_image || '/cards/card_1758966564_4428.png'}
-                      alt={card.name}
-                      className="w-full h-auto rounded-lg object-cover shadow-elevated group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-
-                  {/* Card Info */}
-                  <div className="flex-1 p-4 min-w-0">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-accent">{card.bank}</p>
-                        <h3 className="text-base font-display font-bold text-card-foreground mt-0.5 truncate">{card.name}</h3>
+          <>
+            {/* Mobile View - All Category */}
+            {selectedBank === 'all' ? (
+              <div className="md:hidden space-y-4">
+                {displayedCards.map(card => {
+                  const features = CARD_FEATURES[card.id] || ['Premium benefits', 'Reward points', 'Low interest rates'];
+                  return (
+                    <div key={card.id} className="bg-card rounded-xl border border-border shadow-card overflow-hidden">
+                      <div className="flex flex-row">
+                        <div className="w-32 flex-shrink-0 bg-muted/30 flex items-center justify-center p-3">
+                          <img
+                            src={(card as any).card_image || '/cards/card_1758966564_4428.png'}
+                            alt={card.name}
+                            className="w-full h-auto rounded-lg shadow-lg"
+                          />
+                        </div>
+                        <div className="flex-1 p-3 min-w-0">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-semibold text-accent uppercase">{card.bank}</p>
+                              <h3 className="text-sm font-display font-bold text-card-foreground mt-0.5 truncate">{card.name}</h3>
+                            </div>
+                            {(role === 'super_admin' || role === 'admin') && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setEditCard(card);
+                                  setNewCard({
+                                    name: card.name,
+                                    bank: card.bank,
+                                    category: 'credit_card',
+                                    commission: String(card.dsa_commission || card.dsaCommission || 0),
+                                    redirectUrl: (card as any).redirect_url || '',
+                                    payoutSource: (card as any).payout_source || '',
+                                    status: card.status === 'active',
+                                    variantImage: null,
+                                    cardImage: null,
+                                    pincodes: (card as any).pincodes || '',
+                                    highlights: card.reward_points || card.rewardPoints || '',
+                                    terms: (card as any).terms || ''
+                                  });
+                                  setIsOpen(true);
+                                }}
+                              >
+                                <Edit className="w-3.5 h-3.5" />
+                              </Button>
+                            )}
+                          </div>
+                          <ul className="mt-2 space-y-1">
+                            {features.slice(0, 2).map((f, i) => (
+                              <li key={i} className="flex items-start gap-1.5 text-xs text-muted-foreground">
+                                <Check className="w-3 h-3 text-accent mt-0.5 flex-shrink-0" />
+                                <span className="line-clamp-1">{f}</span>
+                              </li>
+                            ))}
+                          </ul>
+                          {(role === 'dsa_partner' || role === 'super_admin' || role === 'admin') && (
+                            <p className="mt-2 text-xs font-bold text-accent">₹{(card.dsaCommission || card.dsa_commission || 0).toLocaleString()}</p>
+                          )}
+                          <Button
+                            onClick={() => {
+                              const slug = card.name.toLowerCase().replace(/\s+/g, '-');
+                              navigate(`/credit-cards/${slug}`);
+                            }}
+                            size="sm"
+                            className="w-full mt-2 gradient-accent text-accent-foreground border-0 h-7 text-xs"
+                          >
+                            View Details
+                          </Button>
+                        </div>
                       </div>
-                      {(role === 'super_admin' || role === 'admin') && (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setEditCard(card);
-                            setNewCard({
-                              name: card.name,
-                              bank: card.bank,
-                              category: 'credit_card',
-                              commission: String(card.dsa_commission || card.dsaCommission || 0),
-                              redirectUrl: (card as any).redirect_url || '',
-                              payoutSource: (card as any).payout_source || '',
-                              status: card.status === 'active',
-                              variantImage: null,
-                              cardImage: null,
-                              pincodes: (card as any).pincodes || '',
-                              highlights: card.reward_points || card.rewardPoints || '',
-                              terms: (card as any).terms || ''
-                            });
-                            setIsOpen(true);
-                          }}
-                          className="ml-2"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                      )}
                     </div>
-
-                    <ul className="mt-3 space-y-1.5">
-                      {features.map((f, i) => (
-                        <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
-                          <Check className="w-3.5 h-3.5 text-accent mt-0.5 flex-shrink-0" />
-                          <span>{f}</span>
-                        </li>
-                      ))}
-                    </ul>
-
-                    {(role === 'dsa_partner' || role === 'super_admin' || role === 'admin') && (
-                      <p className="mt-3 text-xs font-bold text-accent">Commission: ₹{(card.dsaCommission || card.dsa_commission || 0).toLocaleString()}</p>
-                    )}
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="md:hidden w-[90vw]">
+                <div className="overflow-x-auto scrollbar-hide snap-x snap-mandatory">
+                  <div className="flex gap-4 px-4 pb-4">
+                    {displayedCards.map(card => {
+                      const features = CARD_FEATURES[card.id] || ['Premium benefits', 'Reward points', 'Low interest rates'];
+                      return (
+                        <div key={card.id} className="flex-shrink-0 w-[85vw] snap-start">
+                          <div className="bg-card rounded-xl border border-border shadow-card overflow-hidden h-full">
+                            <div className="relative bg-gradient-to-br from-accent/10 to-muted/30 p-6 flex items-center justify-center group/card">
+                              <img
+                                src={(card as any).card_image || '/cards/card_1758966564_4428.png'}
+                                alt={card.name}
+                                className="w-48 h-auto transform -rotate-90 rounded-lg shadow-2xl transition-transform duration-300 hover:scale-105"
+                              />
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  document.getElementById('card-scroll')?.scrollBy({ left: -300, behavior: 'smooth' });
+                                }}
+                                className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm border border-border flex items-center justify-center opacity-0 group-hover/card:opacity-100 transition-opacity hover:bg-accent hover:text-accent-foreground"
+                              >
+                                <ChevronLeft className="w-5 h-5" />
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  document.getElementById('card-scroll')?.scrollBy({ left: 300, behavior: 'smooth' });
+                                }}
+                                className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm border border-border flex items-center justify-center opacity-0 group-hover/card:opacity-100 transition-opacity hover:bg-accent hover:text-accent-foreground"
+                              >
+                                <ChevronRight className="w-5 h-5" />
+                              </button>
+                            </div>
+                            <div className="p-4">
+                              <div className="flex items-start justify-between mb-3">
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs font-semibold text-accent uppercase">{card.bank}</p>
+                                  <h3 className="text-base font-display font-bold text-card-foreground mt-1">{card.name}</h3>
+                                </div>
+                                {(role === 'super_admin' || role === 'admin') && (
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setEditCard(card);
+                                      setNewCard({
+                                        name: card.name,
+                                        bank: card.bank,
+                                        category: 'credit_card',
+                                        commission: String(card.dsa_commission || card.dsaCommission || 0),
+                                        redirectUrl: (card as any).redirect_url || '',
+                                        payoutSource: (card as any).payout_source || '',
+                                        status: card.status === 'active',
+                                        variantImage: null,
+                                        cardImage: null,
+                                        pincodes: (card as any).pincodes || '',
+                                        highlights: card.reward_points || card.rewardPoints || '',
+                                        terms: (card as any).terms || ''
+                                      });
+                                      setIsOpen(true);
+                                    }}
+                                  >
+                                    <Edit className="w-4 h-4" />
+                                  </Button>
+                                )}
+                              </div>
+                              <ul className="space-y-2 mb-4">
+                                {features.map((f, i) => (
+                                  <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
+                                    <Check className="w-3.5 h-3.5 text-accent mt-0.5 flex-shrink-0" />
+                                    <span>{f}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                              {(role === 'dsa_partner' || role === 'super_admin' || role === 'admin') && (
+                                <div className="pt-3 border-t border-border">
+                                  <p className="text-xs font-bold text-accent">Commission: ₹{(card.dsaCommission || card.dsa_commission || 0).toLocaleString()}</p>
+                                </div>
+                              )}
+                              <Button
+                                onClick={() => {
+                                  const slug = card.name.toLowerCase().replace(/\s+/g, '-');
+                                  navigate(`/credit-cards/${slug}`);
+                                }}
+                                className="w-full mt-4 gradient-accent text-accent-foreground border-0"
+                              >
+                                View Details
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
-              </button>
-            );
-          })}
-        </div>
+              </div>
+            )}
+
+            {/* Desktop/Tablet Grid */}
+            <div className="hidden md:grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {displayedCards.map(card => {
+                const features = CARD_FEATURES[card.id] || ['Premium benefits', 'Reward points', 'Low interest rates'];
+                return (
+                  <button
+                    key={card.id}
+                    onClick={() => {
+                      const slug = card.name.toLowerCase().replace(/\s+/g, '-');
+                      navigate(`/credit-cards/${slug}`);
+                    }}
+                    className="bg-card rounded-xl border border-border shadow-card overflow-hidden text-left hover:shadow-elevated hover:border-accent/20 transition-all duration-200 group"
+                  >
+                    <div className="flex flex-row">
+                      <div className="w-36 sm:w-44 flex-shrink-0 bg-muted/30 flex items-center justify-center p-4">
+                        <img
+                          src={(card as any).card_image || '/cards/card_1758966564_4428.png'}
+                          alt={card.name}
+                          className="w-full h-auto rounded-lg object-cover shadow-elevated group-hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                      <div className="flex-1 p-4 min-w-0">
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-semibold text-accent">{card.bank}</p>
+                            <h3 className="text-base font-display font-bold text-card-foreground mt-0.5 truncate">{card.name}</h3>
+                          </div>
+                          {(role === 'super_admin' || role === 'admin') && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditCard(card);
+                                setNewCard({
+                                  name: card.name,
+                                  bank: card.bank,
+                                  category: 'credit_card',
+                                  commission: String(card.dsa_commission || card.dsaCommission || 0),
+                                  redirectUrl: (card as any).redirect_url || '',
+                                  payoutSource: (card as any).payout_source || '',
+                                  status: card.status === 'active',
+                                  variantImage: null,
+                                  cardImage: null,
+                                  pincodes: (card as any).pincodes || '',
+                                  highlights: card.reward_points || card.rewardPoints || '',
+                                  terms: (card as any).terms || ''
+                                });
+                                setIsOpen(true);
+                              }}
+                              className="ml-2"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                          )}
+                        </div>
+                        <ul className="mt-3 space-y-1.5">
+                          {features.map((f, i) => (
+                            <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
+                              <Check className="w-3.5 h-3.5 text-accent mt-0.5 flex-shrink-0" />
+                              <span>{f}</span>
+                            </li>
+                          ))}
+                        </ul>
+                        {(role === 'dsa_partner' || role === 'super_admin' || role === 'admin') && (
+                          <p className="mt-3 text-xs font-bold text-accent">Commission: ₹{(card.dsaCommission || card.dsa_commission || 0).toLocaleString()}</p>
+                        )}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </>
         )}
         
         {!loading && hasMore && (
