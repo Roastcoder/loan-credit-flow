@@ -247,7 +247,7 @@ const LeadsPage = () => {
                       <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => { navigator.clipboard.writeText(lead.lead_id); toast({ title: 'Copied', description: 'Lead ID copied to clipboard' }); }}>
                         <Copy className="w-3.5 h-3.5 text-muted-foreground" />
                       </Button>
-                      {(role === 'super_admin' || role === 'admin' || permissions?.leads?.edit) && (
+                      {(role === 'super_admin' || role === 'admin') && (
                         <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => { setEditLead(lead); setEditStatus(lead.status); }}>
                           <Edit className="w-3.5 h-3.5 text-muted-foreground" />
                         </Button>
