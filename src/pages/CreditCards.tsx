@@ -205,7 +205,7 @@ const CreditCards = () => {
   return (
     <AppLayout >
       <div className="space-y-5">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div className="flex items-center justify-between gap-3">
           <div>
             <h1 className="text-2xl md:text-3xl font-display font-bold text-foreground">Credit Cards</h1>
             <p className="text-muted-foreground mt-0.5 text-sm">
@@ -215,8 +215,8 @@ const CreditCards = () => {
           {permissions.creditCards.add && (
             <Dialog open={isOpen} onOpenChange={setIsOpen}>
               <DialogTrigger asChild>
-                <Button className="gradient-accent text-accent-foreground border-0 hover:opacity-90 w-full md:w-auto">
-                  <Plus className="w-4 h-4 mr-2" /> Add Product
+                <Button className="gradient-accent mr-3 text-accent-foreground border-0 hover:opacity-90">
+                  <Plus className="w-4 h-4 mr-3" /> Add Product
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -317,8 +317,8 @@ const CreditCards = () => {
         </div>
 
         {/* Bank Filters */}
-        <div className='w-[90vw] md:w-[70vw] lg:w-[80vw] overflow-hidden px-4 py-3 overflow-x-scroll scrollbar-hide'> 
-          <div className="flex gap-2 px-4 md:px-6 lg:px-8 pb-2">
+        <div className='w-[90vw] md:w-[70vw] lg:w-[80vw] overflow-hidden py-2 overflow-x-scroll scrollbar-hide'> 
+          <div className="flex gap-2 px-4md:px-6 lg:px-8 pb-2">
             <Button
               size="sm"
               variant={selectedBank === 'all' ? 'default' : 'outline'}
