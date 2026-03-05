@@ -183,18 +183,47 @@ const NewLoanApplication = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.customerName || !form.mobileNumber || !form.loanAmount) {
       toast({ title: 'Missing fields', description: 'Please fill all required fields.', variant: 'destructive' });
       return;
     }
     setLoading(true);
-    setTimeout(() => {
-      toast({ title: 'Application Submitted!', description: `${LOAN_TYPES.find(t => t.key === selectedType)?.title} application for ${form.customerName} created.` });
+    try {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+      const response = await fetch(`${API_BASE_URL}/api/loans/create.php`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          applicantName: form.customerName,
+          mobileNumber: form.mobileNumber,
+          category: selectedType,
+          lenderName: form.bankName || form.financerName,
+          caseType: form.caseType,
+          amount: parseFloat(form.loanAmount),
+          interestRate: parseFloat(form.rateOfInterest) || 0,
+          tenure: parseInt(form.tenure) || 0,
+          status: 'pending',
+          employeeName: form.dealingPersonName,
+          managerName: '',
+          dsaPartner: '',
+          createdByUserId: user.id || null,
+        }),
+      });
+      const result = await response.json();
+      if (response.ok) {
+        toast({ title: 'Application Submitted!', description: `${LOAN_TYPES.find(t => t.key === selectedType)?.title} application for ${form.customerName} created.` });
+        navigate('/loan-disbursement');
+      } else {
+        throw new Error(result.message || 'Failed to create loan');
+      }
+    } catch (error: any) {
+      toast({ title: 'Submission Failed', description: error.message, variant: 'destructive' });
+    } finally {
       setLoading(false);
-      navigate('/loan-disbursement');
-    }, 1000);
+    }
   };
 
   // Step 1: Type Selection

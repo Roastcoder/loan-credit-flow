@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, Filter, Download, Plus, ArrowRight, Eye, Pencil, Trash2, FileText as FileIcon, Phone, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '@/components/AppLayout';
@@ -7,6 +7,8 @@ import { useRole } from '@/contexts/RoleContext';
 import { mockDisbursements } from '@/data/mockData';
 import type { LoanDisbursement as LoanDisbursementType, LoanCategory } from '@/types';
 import { LOAN_CATEGORY_LABELS } from '@/types';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -26,7 +28,8 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 const LoanDisbursementPage = () => {
   const { role, permissions } = useRole();
   const navigate = useNavigate();
-  const [disbursements, setDisbursements] = useState<LoanDisbursementType[]>(mockDisbursements);
+  const [disbursements, setDisbursements] = useState<LoanDisbursementType[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -35,6 +38,54 @@ const LoanDisbursementPage = () => {
     applicantName: '', category: 'personal_loan' as LoanCategory, amount: '',
     bankName: '', employeeName: '', dsaPartner: '',
   });
+
+  useEffect(() => {
+    fetchDisbursements();
+  }, []);
+
+  const fetchDisbursements = async () => {
+    try {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      const userRole = user.role || 'employee';
+      const userId = user.id || null;
+      
+      const params = new URLSearchParams();
+      if (userId) params.append('user_id', userId);
+      if (userRole) params.append('user_role', userRole);
+      
+      const response = await fetch(`${API_BASE_URL}/api/loans/read.php?${params.toString()}`);
+      const data = await response.json();
+      const formatted = data.map((loan: any) => ({
+        id: String(loan.id),
+        applicantName: loan.applicantName,
+        mobileNumber: loan.mobileNumber || '',
+        category: loan.category,
+        lenderName: loan.lenderName,
+        caseType: loan.caseType,
+        oldHP: '-',
+        newHP: '-',
+        amount: Number(loan.amount),
+        interestRate: Number(loan.interestRate),
+        tenure: Number(loan.tenure),
+        days: 0,
+        pddStatus: 'Pending',
+        bankName: loan.lenderName,
+        status: loan.status,
+        employeeName: loan.employeeName || 'Self',
+        managerName: loan.managerName || '-',
+        dsaPartner: loan.dsaPartner || '-',
+        whoWeAre: 'DSA',
+        disbursementDate: '',
+        createdAt: loan.createdAt?.split(' ')[0] || new Date().toISOString().split('T')[0],
+      }));
+      setDisbursements(formatted);
+    } catch (error) {
+      console.error('Failed to fetch loans:', error);
+      setDisbursements(mockDisbursements);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filtered = disbursements.filter(d => {
     const matchSearch = d.applicantName.toLowerCase().includes(search.toLowerCase()) ||
@@ -60,38 +111,43 @@ const LoanDisbursementPage = () => {
     }
   };
 
-  const handleAddLoan = () => {
+  const handleAddLoan = async () => {
     if (!newLoan.applicantName || !newLoan.amount || !newLoan.bankName) {
       toast({ title: 'Missing fields', description: 'Please fill all required fields.', variant: 'destructive' });
       return;
     }
-    const loan: LoanDisbursementType = {
-      id: String(disbursements.length + 1),
-      applicantName: newLoan.applicantName,
-      mobileNumber: '',
-      category: newLoan.category,
-      lenderName: newLoan.bankName,
-      caseType: LOAN_CATEGORY_LABELS[newLoan.category],
-      oldHP: '-',
-      newHP: '-',
-      amount: Number(newLoan.amount),
-      interestRate: 0,
-      tenure: 0,
-      days: 0,
-      pddStatus: 'Pending',
-      bankName: newLoan.bankName,
-      status: 'pending',
-      employeeName: newLoan.employeeName || 'Self',
-      managerName: '-',
-      dsaPartner: newLoan.dsaPartner || '-',
-      whoWeAre: 'DSA',
-      disbursementDate: '',
-      createdAt: new Date().toISOString().split('T')[0],
-    };
-    setDisbursements([loan, ...disbursements]);
-    setNewLoan({ applicantName: '', category: 'personal_loan', amount: '', bankName: '', employeeName: '', dsaPartner: '' });
-    setShowAddForm(false);
-    toast({ title: 'Loan Added', description: `Disbursement for ${loan.applicantName} created successfully.` });
+    try {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      const response = await fetch(`${API_BASE_URL}/api/loans/create.php`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          applicantName: newLoan.applicantName,
+          mobileNumber: '',
+          category: newLoan.category,
+          lenderName: newLoan.bankName,
+          caseType: LOAN_CATEGORY_LABELS[newLoan.category],
+          amount: Number(newLoan.amount),
+          interestRate: 0,
+          tenure: 0,
+          status: 'pending',
+          employeeName: newLoan.employeeName || 'Self',
+          managerName: '',
+          dsaPartner: newLoan.dsaPartner || '',
+          createdByUserId: user.id || null,
+        }),
+      });
+      if (response.ok) {
+        await fetchDisbursements();
+        setNewLoan({ applicantName: '', category: 'personal_loan', amount: '', bankName: '', employeeName: '', dsaPartner: '' });
+        setShowAddForm(false);
+        toast({ title: 'Loan Added', description: `Disbursement for ${newLoan.applicantName} created successfully.` });
+      } else {
+        throw new Error('Failed to create loan');
+      }
+    } catch (error: any) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    }
   };
 
   const exportCSV = () => {
@@ -119,6 +175,16 @@ const LoanDisbursementPage = () => {
   });
 
   const formatAmount = (amount: number) => `₹${amount.toLocaleString('en-IN')}`;
+
+  if (loading) {
+    return (
+      <AppLayout>
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-pulse text-muted-foreground">Loading disbursements...</div>
+        </div>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout>
