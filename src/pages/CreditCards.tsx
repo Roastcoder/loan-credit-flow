@@ -25,6 +25,8 @@ const CreditCards = () => {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [search, setSearch] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedBank, setSelectedBank] = useState('all');
   const [page, setPage] = useState(1);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -45,12 +47,28 @@ const CreditCards = () => {
   }, []);
 
   useEffect(() => {
-    const filtered = cards.filter(c =>
-      c.name.toLowerCase().includes(search.toLowerCase()) || c.bank.toLowerCase().includes(search.toLowerCase())
-    );
+    let filtered = cards;
+    
+    // Filter by search
+    if (search) {
+      filtered = filtered.filter(c =>
+        c.name.toLowerCase().includes(search.toLowerCase()) || c.bank.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+    
+    // Filter by category (all cards are credit_card type)
+    if (selectedCategory !== 'all') {
+      filtered = filtered.filter(c => c.type === selectedCategory);
+    }
+    
+    // Filter by bank
+    if (selectedBank !== 'all') {
+      filtered = filtered.filter(c => c.bank === selectedBank);
+    }
+    
     setDisplayedCards(filtered.slice(0, CARDS_PER_PAGE));
     setPage(1);
-  }, [search, cards]);
+  }, [search, selectedCategory, selectedBank, cards]);
 
   useEffect(() => {
     if (!loadMoreRef.current) return;
@@ -74,9 +92,22 @@ const CreditCards = () => {
   }, [displayedCards, loadingMore]);
 
   const loadMore = useCallback(() => {
-    const filtered = cards.filter(c =>
-      c.name.toLowerCase().includes(search.toLowerCase()) || c.bank.toLowerCase().includes(search.toLowerCase())
-    );
+    let filtered = cards;
+    
+    if (search) {
+      filtered = filtered.filter(c =>
+        c.name.toLowerCase().includes(search.toLowerCase()) || c.bank.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+    
+    if (selectedCategory !== 'all') {
+      filtered = filtered.filter(c => c.type === selectedCategory);
+    }
+    
+    if (selectedBank !== 'all') {
+      filtered = filtered.filter(c => c.bank === selectedBank);
+    }
+    
     const nextPage = page + 1;
     const newCards = filtered.slice(0, nextPage * CARDS_PER_PAGE);
     
@@ -88,7 +119,7 @@ const CreditCards = () => {
         setLoadingMore(false);
       }, 300);
     }
-  }, [cards, search, page, displayedCards.length]);
+  }, [cards, search, selectedCategory, selectedBank, page, displayedCards.length]);
 
   const fetchBanks = async () => {
     try {
@@ -111,9 +142,19 @@ const CreditCards = () => {
     }
   };
 
-  const filteredCards = cards.filter(c =>
-    c.name.toLowerCase().includes(search.toLowerCase()) || c.bank.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredCards = cards.filter(c => {
+    let matches = true;
+    if (search) {
+      matches = matches && (c.name.toLowerCase().includes(search.toLowerCase()) || c.bank.toLowerCase().includes(search.toLowerCase()));
+    }
+    if (selectedCategory !== 'all') {
+      matches = matches && c.type === selectedCategory;
+    }
+    if (selectedBank !== 'all') {
+      matches = matches && c.bank === selectedBank;
+    }
+    return matches;
+  });
   const hasMore = displayedCards.length < filteredCards.length;
 
   const handleAddCard = async () => {
@@ -162,7 +203,7 @@ const CreditCards = () => {
   };
 
   return (
-    <AppLayout>
+    <AppLayout >
       <div className="space-y-5">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div>
@@ -274,6 +315,35 @@ const CreditCards = () => {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input placeholder="Search by name or bank..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10" />
         </div>
+
+        {/* Category and Bank Filters */}
+        <div className='w-[90vw] overflow-hidden px-4 py-3 overflow-x-scroll scrollbar-hide'> 
+ 
+          <div className="flex gap-2 items-center ">
+            <Button
+              size="sm"
+              variant={selectedBank === 'all' ? 'default' : 'outline'}
+              onClick={() => setSelectedBank('all')}
+              className={selectedBank === 'all' ? 'gradient-accent text-accent-foreground border-0' : ''}
+            >
+              All
+            </Button>
+            {[...new Set(cards.map(c => c.bank))].sort().map(bank => (
+              <Button
+                key={bank}
+                size="sm"
+                variant={selectedBank === bank ? 'default' : 'outline'}
+                onClick={() => setSelectedBank(bank)}
+                className={selectedBank === bank ? 'gradient-accent text-accent-foreground border-0' : ''}
+              >
+                {bank}
+              </Button>
+            ))}
+          </div>
+   
+
+        </div>
+       
 
         {/* Card Grid — horizontal card+info layout like reference */}
         {loading ? (
