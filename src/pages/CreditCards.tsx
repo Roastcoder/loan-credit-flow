@@ -317,7 +317,7 @@ const CreditCards = () => {
         </div>
 
         {/* Category and Bank Filters */}
-        <div className='w-[90vw] overflow-hidden px-4 py-3 overflow-x-scroll scrollbar-hide'> 
+        <div className='w-[90vw] md:w-[70vw] lg:w-[80vw] overflow-hidden px-4 py-3 overflow-x-scroll scrollbar-hide'> 
  
           <div className="flex gap-2 items-center ">
             <Button
