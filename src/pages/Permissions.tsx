@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Shield, CreditCard, FileText, Check, X, Users, Save } from 'lucide-react';
 import AppLayout from '@/components/AppLayout';
-import { useRole } from '@/contexts/RoleContext';
+import { useRole, DEMO_USERS } from '@/contexts/RoleContext';
 import { ROLE_LABELS, UserRole, Permission } from '@/types';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
