@@ -1,4 +1,4 @@
-import { CreditCard, LayoutDashboard, FileText, ChevronDown, Users, LogOut, Target, Plus, Car, Home, Briefcase, Wallet, UsersRound } from 'lucide-react';
+import { CreditCard, LayoutDashboard, ChevronDown, Users, LogOut, Target, Wallet, UsersRound } from 'lucide-react';
 import { useRole } from '@/contexts/RoleContext';
 import { ROLE_LABELS, UserRole } from '@/types';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -22,10 +22,11 @@ const AppSidebar = () => {
 
   const navItems = [
     { path: '/', label: 'Dashboard', icon: LayoutDashboard },
-    ...(moduleAccess.creditCards ? [{ path: '/credit-cards', label: 'Credit Cards', icon: CreditCard }] : []),
-    ...(moduleAccess.loanDisbursement ? [{ path: '/loan-disbursement', label: 'Loan Disbursement', icon: FileText }] : []),
+    ...(moduleAccess.creditCards ? [
+      { path: '/credit-cards', label: 'Credit Cards', icon: CreditCard },
+      { path: '/leads', label: 'Leads', icon: Target },
+    ] : []),
     { path: '/payouts', label: 'Payouts', icon: Wallet },
-    ...(moduleAccess.creditCards ? [{ path: '/leads', label: 'Leads', icon: Target }] : []),
     ...((role === 'super_admin' || role === 'admin') ? [
       { path: '/teams', label: 'Teams', icon: UsersRound },
       { path: '/permissions', label: 'Permissions', icon: Users }
@@ -84,66 +85,9 @@ const AppSidebar = () => {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-
-        {(moduleAccess.loanDisbursement || moduleAccess.creditCards) && (
-          <SidebarGroup>
-            <SidebarGroupLabel className="text-[10px]">Quick Actions</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {moduleAccess.creditCards && (
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild tooltip="Apply for Credit Card" size="sm">
-                      <NavLink to="/credit-cards" className="gap-2 text-xs">
-                        <Plus className="w-3.5 h-3.5" />
-                        <span>New Credit Card</span>
-                      </NavLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                )}
-                {moduleAccess.loanDisbursement && (
-                  <>
-                    <SidebarMenuItem>
-                      <SidebarMenuButton asChild tooltip="New & Used Car Loan Applications" size="sm">
-                        <NavLink to="/car-loan" className="gap-2 text-xs">
-                          <Car className="w-3.5 h-3.5" />
-                          <span>Car Loan</span>
-                        </NavLink>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                    <SidebarMenuItem>
-                      <SidebarMenuButton asChild tooltip="Home Loan and Loan Against Property Applications" size="sm">
-                        <NavLink to="/home-loan" className="gap-2 text-xs">
-                          <Home className="w-3.5 h-3.5" />
-                          <span>Home Loan</span>
-                        </NavLink>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                    <SidebarMenuItem>
-                      <SidebarMenuButton asChild tooltip="Personal and Business Loan Applications" size="sm">
-                        <NavLink to="/pl-bl" className="gap-2 text-xs">
-                          <Briefcase className="w-3.5 h-3.5" />
-                          <span>PL / BL</span>
-                        </NavLink>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                    <SidebarMenuItem>
-                      <SidebarMenuButton asChild tooltip="Team Loan Applications" size="sm">
-                        <NavLink to="/team-applications" className="gap-2 text-xs">
-                          <Users className="w-3.5 h-3.5" />
-                          <span>Team Applications</span>
-                        </NavLink>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  </>
-                )}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
       </SidebarContent>
 
       <SidebarFooter className="p-2 border-t border-sidebar-border">
-        {/* Role Selector (Demo Mode or Admin) */}
         {showRoleSelector && (
           <DropdownMenu>
             <DropdownMenuTrigger className={`w-full flex items-center ${collapsed ? 'justify-center p-1.5' : 'gap-2 px-2 py-1.5'} rounded-lg text-xs text-sidebar-foreground bg-sidebar-accent/50 hover:bg-sidebar-accent transition-all mb-1`}>
@@ -160,7 +104,6 @@ const AppSidebar = () => {
           </DropdownMenu>
         )}
         
-        {/* Logout */}
         <button
           onClick={handleLogout}
           className={`w-full flex items-center ${collapsed ? 'justify-center p-1.5' : 'gap-2 px-2 py-1.5'} rounded-lg text-xs text-sidebar-foreground hover:bg-sidebar-accent/50 transition-all`}
