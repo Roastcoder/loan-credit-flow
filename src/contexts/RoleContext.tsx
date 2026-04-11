@@ -2,16 +2,16 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserRole, Permission } from '@/types';
 import { useAuth } from '@/hooks/useAuth';
 
-type RolePermissions = Record<UserRole, { creditCards: Permission; loanDisbursement: Permission }>;
+type RolePermissions = Record<UserRole, { creditCards: Permission }>;
 
-interface ModuleAccess { creditCards: boolean; loanDisbursement: boolean; }
+interface ModuleAccess { creditCards: boolean; }
 interface UserAccess { [userId: string]: ModuleAccess; }
 
 interface RoleContextType {
   role: UserRole;
   setRole: (role: UserRole) => void;
-  permissions: { creditCards: Permission; loanDisbursement: Permission };
-  moduleAccess: { creditCards: boolean; loanDisbursement: boolean };
+  permissions: { creditCards: Permission };
+  moduleAccess: { creditCards: boolean };
   isLoggedIn: boolean;
   setIsLoggedIn: (v: boolean) => void;
   userAccess: UserAccess;
@@ -22,7 +22,6 @@ interface RoleContextType {
   setHasSeenOnboarding: (v: boolean) => void;
   sidebarOpen: boolean;
   setSidebarOpen: (v: boolean) => void;
-  // Auth
   authUser: ReturnType<typeof useAuth>['user'];
   authLoading: boolean;
   displayName: string;
@@ -37,20 +36,20 @@ interface RoleContextType {
 const RoleContext = createContext<RoleContextType | undefined>(undefined);
 
 const defaultRolePermissions: RolePermissions = {
-  super_admin: { creditCards: { view: true, edit: true, add: true, delete: true }, loanDisbursement: { view: true, edit: true, add: true, delete: true } },
-  admin: { creditCards: { view: true, edit: true, add: true, delete: false }, loanDisbursement: { view: true, edit: true, add: true, delete: false } },
-  manager: { creditCards: { view: true, edit: false, add: false, delete: false }, loanDisbursement: { view: true, edit: true, add: false, delete: false } },
-  team_leader: { creditCards: { view: true, edit: false, add: false, delete: false }, loanDisbursement: { view: true, edit: true, add: false, delete: false } },
-  employee: { creditCards: { view: true, edit: false, add: false, delete: false }, loanDisbursement: { view: true, edit: true, add: false, delete: false } },
-  dsa_partner: { creditCards: { view: true, edit: false, add: false, delete: false }, loanDisbursement: { view: true, edit: false, add: false, delete: false } },
+  super_admin: { creditCards: { view: true, edit: true, add: true, delete: true } },
+  admin: { creditCards: { view: true, edit: true, add: true, delete: false } },
+  manager: { creditCards: { view: true, edit: false, add: false, delete: false } },
+  team_leader: { creditCards: { view: true, edit: false, add: false, delete: false } },
+  employee: { creditCards: { view: true, edit: false, add: false, delete: false } },
+  dsa_partner: { creditCards: { view: true, edit: false, add: false, delete: false } },
 };
 
 const defaultUserAccess: UserAccess = {
-  'user-1': { creditCards: true, loanDisbursement: true },
-  'user-2': { creditCards: true, loanDisbursement: false },
-  'user-3': { creditCards: false, loanDisbursement: true },
-  'user-4': { creditCards: true, loanDisbursement: true },
-  'user-5': { creditCards: false, loanDisbursement: false },
+  'user-1': { creditCards: true },
+  'user-2': { creditCards: true },
+  'user-3': { creditCards: false },
+  'user-4': { creditCards: true },
+  'user-5': { creditCards: false },
 };
 
 export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -62,13 +61,13 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [rolePermissions, setRolePermissions] = useState<RolePermissions>(defaultRolePermissions);
   const [hasSeenOnboarding, setHasSeenOnboardingState] = useState(() => localStorage.getItem('fincore_onboarding') === 'done');
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [moduleAccess, setModuleAccess] = useState<ModuleAccess>({ creditCards: true, loanDisbursement: true });
+  const [moduleAccess, setModuleAccess] = useState<ModuleAccess>({ creditCards: true });
 
   const getModuleAccess = (): ModuleAccess => {
-    if (isDemoMode) return { creditCards: true, loanDisbursement: true };
+    if (isDemoMode) return { creditCards: true };
     const effectiveRole = auth.userRole;
     if (effectiveRole === 'super_admin' || effectiveRole === 'admin') {
-      return { creditCards: true, loanDisbursement: true };
+      return { creditCards: true };
     }
     const stored = localStorage.getItem('user_permissions');
     if (stored) {
@@ -76,14 +75,12 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const parsed = JSON.parse(stored);
         return {
           creditCards: parsed?.access?.creditCards ?? true,
-          loanDisbursement: parsed?.access?.loanDisbursement ?? true,
         };
       } catch { }
     }
-    return { creditCards: true, loanDisbursement: true };
+    return { creditCards: true };
   };
 
-  // Update moduleAccess whenever auth or localStorage changes
   useEffect(() => {
     setModuleAccess(getModuleAccess());
   }, [auth.userRole, isDemoMode]);

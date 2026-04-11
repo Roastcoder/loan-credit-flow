@@ -9,12 +9,6 @@ import SplashScreen from "@/components/SplashScreen";
 import Index from "./pages/Index";
 import CreditCards from "./pages/CreditCards";
 import CardDetail from "./pages/CardDetail";
-import LoanDisbursementPage from "./pages/LoanDisbursement";
-import LoanDetail from "./pages/LoanDetail";
-import NewLoanApplication from "./pages/NewLoanApplication";
-import CarLoan from "./pages/CarLoan";
-import HomeLoan from "./pages/HomeLoan";
-import TeamApplications from "./pages/TeamApplication";
 import LeadsPage from "./pages/Leads";
 import Payouts from "./pages/Payouts";
 import Team from "./pages/Team";
@@ -58,16 +52,6 @@ const AppRoutes = () => {
           <Route path="/leads" element={<ProtectedRoute><LeadsPage /></ProtectedRoute>} />
         </>
       )}
-      {moduleAccess.loanDisbursement && (
-        <>
-          <Route path="/loan-disbursement" element={<ProtectedRoute><LoanDisbursementPage /></ProtectedRoute>} />
-          <Route path="/loan-disbursement/new" element={<ProtectedRoute><NewLoanApplication /></ProtectedRoute>} />
-          <Route path="/loan-disbursement/:id" element={<ProtectedRoute><LoanDetail /></ProtectedRoute>} />
-          <Route path="/car-loan" element={<ProtectedRoute><CarLoan /></ProtectedRoute>} />
-          <Route path="/home-loan" element={<ProtectedRoute><HomeLoan /></ProtectedRoute>} />
-        </>
-      )}
-      <Route path="/team-applications" element={<ProtectedRoute><TeamApplications /></ProtectedRoute>} />
       <Route path="/payouts" element={<ProtectedRoute><Payouts /></ProtectedRoute>} />
       <Route path="/team" element={<ProtectedRoute><Team /></ProtectedRoute>} />
       <Route path="/teams" element={<ProtectedRoute><Teams /></ProtectedRoute>} />

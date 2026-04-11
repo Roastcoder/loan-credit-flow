@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Shield, CreditCard, FileText, Check, X, Users, Save } from 'lucide-react';
+import { Shield, CreditCard, Check, X, Users, Save } from 'lucide-react';
 import AppLayout from '@/components/AppLayout';
-import { useRole } from '@/contexts/RoleContext';
+import { useRole, DEMO_USERS } from '@/contexts/RoleContext';
 import { ROLE_LABELS, UserRole, Permission } from '@/types';
 import { Switch } from '@/components/ui/switch';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -31,18 +31,6 @@ const MANAGER_FIELDS = [
 type FieldPerm = { view: boolean; edit: boolean };
 type ManagerFieldPerms = Record<string, Record<string, FieldPerm>>;
 
-const buildDefaultFieldPerms = (): ManagerFieldPerms => {
-  const managers = DEMO_USERS.filter(u => u.role === 'manager' || u.role === 'team_leader' || u.role === 'admin');
-  const perms: ManagerFieldPerms = {};
-  managers.forEach(m => {
-    perms[m.id] = {};
-    MANAGER_FIELDS.forEach(field => {
-      perms[m.id][field] = { view: true, edit: m.role === 'admin' };
-    });
-  });
-  return perms;
-};
-
 const PermissionsPage = () => {
   const { role, userAccess, setUserAccess, rolePermissions, setRolePermissions } = useRole();
   const [users, setUsers] = useState<any[]>([]);
@@ -59,18 +47,16 @@ const PermissionsPage = () => {
       const data = await api.getUsers();
       setUsers(data.users || []);
       
-      // Load user access from permissions
       const access: Record<string, any> = {};
       data.users?.forEach((u: any) => {
         if (u.permissions?.access) {
           access[u.id] = u.permissions.access;
         } else {
-          access[u.id] = { creditCards: false, loanDisbursement: false };
+          access[u.id] = { creditCards: false };
         }
       });
       setUserAccess(access);
       
-      // Build field permissions for fetched users
       const perms: ManagerFieldPerms = {};
       data.users?.forEach((u: any) => {
         if (u.role === 'manager' || u.role === 'team_leader' || u.role === 'admin') {
@@ -100,8 +86,8 @@ const PermissionsPage = () => {
     );
   }
 
-  const toggleUserAccess = async (userId: string, module: 'creditCards' | 'loanDisbursement') => {
-    const currentAccess = userAccess[userId] || { creditCards: false, loanDisbursement: false };
+  const toggleUserAccess = async (userId: string, module: 'creditCards') => {
+    const currentAccess = userAccess[userId] || { creditCards: false };
     const newAccess = {
       ...currentAccess,
       [module]: !currentAccess[module]
@@ -112,7 +98,6 @@ const PermissionsPage = () => {
       [userId]: newAccess,
     }));
     
-    // Save to database
     try {
       await api.updateUserPermissions(userId, { access: newAccess });
     } catch (error) {
@@ -140,7 +125,7 @@ const PermissionsPage = () => {
     }
   };
 
-  const toggleRolePerm = (r: UserRole, module: 'creditCards' | 'loanDisbursement', perm: keyof Permission) => {
+  const toggleRolePerm = (r: UserRole, module: 'creditCards', perm: keyof Permission) => {
     setRolePermissions(prev => ({
       ...prev,
       [r]: {
@@ -177,7 +162,7 @@ const PermissionsPage = () => {
 
   const managersForFieldPerms = users.filter(u => u.role === 'manager' || u.role === 'team_leader' || u.role === 'admin');
 
-  const RolePermCard = ({ r, module }: { r: UserRole; module: 'creditCards' | 'loanDisbursement' }) => (
+  const RolePermCard = ({ r, module }: { r: UserRole; module: 'creditCards' }) => (
     <div className="bg-card rounded-xl border border-border shadow-card p-4">
       <div className="flex items-center justify-between mb-3">
         <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-accent/10 text-accent">
@@ -265,50 +250,6 @@ const PermissionsPage = () => {
               </div>
             </div>
 
-            <div>
-              <div className="flex items-center gap-1.5 mb-2">
-                <FileText className="w-4 h-4 text-accent" />
-                <h3 className="font-display font-semibold text-sm text-foreground">Loan Disbursement Module</h3>
-              </div>
-              <div className="md:hidden space-y-3">
-                {allRoles.map(r => <RolePermCard key={r} r={r} module="loanDisbursement" />)}
-              </div>
-              <div className="hidden md:block bg-card rounded-xl shadow-card border border-border overflow-hidden">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="bg-muted/20">
-                      <TableHead className="min-w-[140px]">Role</TableHead>
-                      {permissionKeys.map(p => (
-                        <TableHead key={p} className="text-center min-w-[80px]">{permissionLabels[p]}</TableHead>
-                      ))}
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {allRoles.map(r => (
-                      <TableRow key={r} className="hover:bg-muted/30">
-                        <TableCell>
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-accent/10 text-accent">
-                            {ROLE_LABELS[r]}
-                          </span>
-                        </TableCell>
-                        {permissionKeys.map(p => (
-                          <TableCell key={p} className="text-center">
-                            <div className="flex justify-center">
-                              <Switch
-                                checked={rolePermissions[r].loanDisbursement[p]}
-                                onCheckedChange={() => toggleRolePerm(r, 'loanDisbursement', p)}
-                                disabled={role !== 'super_admin'}
-                              />
-                            </div>
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </div>
-
             {role !== 'super_admin' && (
               <p className="text-sm text-muted-foreground text-center">Only Super Admin can modify role permissions.</p>
             )}
@@ -323,7 +264,7 @@ const PermissionsPage = () => {
               <>
                 <div className="md:hidden space-y-3">
                   {users.map(user => {
-                    const access = userAccess[user.id] || { creditCards: false, loanDisbursement: false };
+                    const access = userAccess[user.id] || { creditCards: false };
                     return (
                       <div key={user.id} className="bg-card rounded-xl border border-border shadow-card p-4">
                         <div className="flex items-center justify-between mb-3">
@@ -335,21 +276,12 @@ const PermissionsPage = () => {
                             {ROLE_LABELS[user.role]}
                           </span>
                         </div>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="flex items-center justify-between bg-muted/50 rounded-lg px-3 py-2.5">
-                            <div className="flex items-center gap-1.5">
-                              <CreditCard className="w-3.5 h-3.5 text-accent" />
-                              <span className="text-xs font-medium text-card-foreground">Cards</span>
-                            </div>
-                            <Switch checked={access.creditCards} onCheckedChange={() => toggleUserAccess(user.id, 'creditCards')} />
+                        <div className="flex items-center justify-between bg-muted/50 rounded-lg px-3 py-2.5">
+                          <div className="flex items-center gap-1.5">
+                            <CreditCard className="w-3.5 h-3.5 text-accent" />
+                            <span className="text-xs font-medium text-card-foreground">Cards</span>
                           </div>
-                          <div className="flex items-center justify-between bg-muted/50 rounded-lg px-3 py-2.5">
-                            <div className="flex items-center gap-1.5">
-                              <FileText className="w-3.5 h-3.5 text-accent" />
-                              <span className="text-xs font-medium text-card-foreground">Loans</span>
-                            </div>
-                            <Switch checked={access.loanDisbursement} onCheckedChange={() => toggleUserAccess(user.id, 'loanDisbursement')} />
-                          </div>
+                          <Switch checked={access.creditCards} onCheckedChange={() => toggleUserAccess(user.id, 'creditCards')} />
                         </div>
                       </div>
                     );
@@ -367,16 +299,11 @@ const PermissionsPage = () => {
                             <CreditCard className="w-3.5 h-3.5 text-accent" /> Credit Cards
                           </div>
                         </TableHead>
-                        <TableHead className="min-w-[120px]">
-                          <div className="flex items-center gap-1">
-                            <FileText className="w-3.5 h-3.5 text-accent" /> Loans
-                          </div>
-                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {users.map(user => {
-                        const access = userAccess[user.id] || { creditCards: false, loanDisbursement: false };
+                        const access = userAccess[user.id] || { creditCards: false };
                         return (
                           <TableRow key={user.id} className="hover:bg-muted/30">
                             <TableCell className="font-medium text-sm">{user.name}</TableCell>
@@ -399,12 +326,6 @@ const PermissionsPage = () => {
                               <div className="flex items-center gap-2">
                                 <Switch checked={access.creditCards} onCheckedChange={() => toggleUserAccess(user.id, 'creditCards')} />
                                 {access.creditCards ? <Check className="w-3.5 h-3.5 text-success" /> : <X className="w-3.5 h-3.5 text-destructive" />}
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex items-center gap-2">
-                                <Switch checked={access.loanDisbursement} onCheckedChange={() => toggleUserAccess(user.id, 'loanDisbursement')} />
-                                {access.loanDisbursement ? <Check className="w-3.5 h-3.5 text-success" /> : <X className="w-3.5 h-3.5 text-destructive" />}
                               </div>
                             </TableCell>
                           </TableRow>
